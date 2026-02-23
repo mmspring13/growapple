@@ -13,7 +13,7 @@ export const useApi = () => {
       error,
     } = await useAsyncData<AllFruitsByTypeResponse>(
       `api:fetch-fruits-by-type:${slug}:${skip}:${take}`,
-      () => $fetch(`/api/fruits/${slug}/all`)
+      () => $fetch(`/api/fruits/${slug}`)
     );
 
     if (error.value) throw error;

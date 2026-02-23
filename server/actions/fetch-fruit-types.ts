@@ -2,11 +2,6 @@ import {useSupabase} from "#server/modules/supabase";
 import {DbFruitType} from "#server/entities/fruit";
 import type {AppTypeFruit} from "#shared/entities/fruit";
 
-// const CACHED_TIME_MIN = 240 * 60 * 1000;
-//
-// let fruitTypes: DbFruitType[] | null = null;
-// let cachedTm: number | null = null;
-
 export const fetchFruitTypes = async () => {
   const supabase = useSupabase();
 
