@@ -10,6 +10,7 @@ export default defineEventHandler<Promise<AllFruitsByTypeResponse>>(async (event
   const log = useLogger('api');
   const typeSlug = getRouterParam(event, 'type');
   const query = getQuery(event);
+  const method = event.method;
   const take = query.take ? Number(query.take) : 100;
   const skip = query.skip ? Number(query.skip) : 0;
   const key = `api:fruits/${typeSlug}?take=${take}&skip=${skip}`;
@@ -42,6 +43,6 @@ export default defineEventHandler<Promise<AllFruitsByTypeResponse>>(async (event
 
   return cached(
     request,
-    `api:fruits/${typeSlug}?take=${take}&skip=${skip}`,
+    `api:${method}:${typeSlug}:${take}:${skip}`,
   )();
 })

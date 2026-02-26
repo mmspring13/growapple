@@ -6,7 +6,8 @@ export type AppFruit = {
   parentage:    number[];
   children:     number[];
   type:         number;
-  description:  string;
+  description?:  string;
+  short_description?:  string;
   images?:      string[];
   rest?:        object;
 };

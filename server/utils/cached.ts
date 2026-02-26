@@ -52,3 +52,30 @@ export function cached<T, Args extends any[]>(
     return result;
   };
 }
+
+export const deleteCache = (key: string) => {
+  const logger = useLogger('cache');
+  logger.info({
+      key
+  }, 'run delete cache function');
+  if (cacheStore.has(key)) {
+    cacheStore.delete(key);
+    logger.info({
+      key
+    }, 'cache successfully deleted');
+  } else {
+    logger.info({
+      key
+    }, 'cache does not exist');
+    return 1;
+  }
+};
+
+export const readCachedKeys = () => {
+  console.log(cacheStore.size, cacheStore.keys())
+  return cacheStore.keys().toArray();
+};
+
+export const readCache = (key: string) => {
+  return cacheStore.get(key);
+};

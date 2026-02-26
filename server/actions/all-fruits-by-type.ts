@@ -3,11 +3,11 @@ import {useSupabase} from "#server/modules/supabase";
 import {DbFruit, DbFruitMeta} from "#server/entities/fruit";
 import {fetchFruitTypes} from "./fetch-fruit-types";
 import type {AppTypeFruit} from "#shared/entities/fruit";
-import type {AppFruitResponse} from "#shared/api/types";
+import type {AllFruitsByTypeFruit} from "#shared/api/types";
 
 export type AllFruitsByType = (fruitTypeId: number) => Promise<{
   type: AppTypeFruit | null;
-  fruits: AppFruitResponse[];
+  fruits: AllFruitsByTypeFruit[];
 }>;
 
 export const allFruitsByType: AllFruitsByType = async (fruitTypeId: number) => {

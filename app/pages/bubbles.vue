@@ -13,8 +13,4 @@ import FruitBubblesClient from '~/components/fruit-bubbles.client.vue';
 </template>
 
 <style>
-body {
-  background-color: #222;
-  color: #fff;
-}
 </style>

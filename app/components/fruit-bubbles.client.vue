@@ -10,12 +10,10 @@
 import { ref, onMounted, onUnmounted, watchEffect } from 'vue';
 import type {AppFruit} from "#shared/entities/fruit";
 if (import.meta.client) {
-  // 1. Dynamically import the core and the module
   const Highcharts = (await import('highcharts')).default;
   const Exporting = (await import('highcharts/modules/exporting')).default;
   await import('highcharts/highcharts-more');
 
-  // 2. Initialize the module
   if (typeof Exporting === 'function') {
     Exporting(Highcharts);
   }
@@ -25,12 +23,11 @@ interface FruitApiResponse {
   fruits: AppFruit[];
 }
 
-const { data, pending, error } = await useFetch<FruitApiResponse>('/api/fruits/1/all');
+const { data, pending, error } = await useFetch<FruitApiResponse>('/api/fruits/apple');
 
 const chartTarget = ref<HTMLElement | null>(null);
 const chartInstance = ref<Highcharts.Chart | null>(null);
 
-// Clean up on unmount
 onUnmounted(() => {
   if (chartInstance.value) {
     chartInstance.value.destroy();
@@ -38,7 +35,15 @@ onUnmounted(() => {
   }
 });
 
-// Watch for data changes and update chart
+function getRandomColor() {
+  var letters = '0123456789ABCDEF';
+  var color = '#';
+  for (var i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+}
+
 watchEffect(() => {
   if (!data.value || !data.value.data.length || !chartTarget.value) {
     return;
@@ -60,12 +65,16 @@ watchEffect(() => {
   const fruitsOfType = fruitsByType[typeName];
 
   // Prepare data for packed bubble chart
-  const chartData = fruitsOfType.map(fruit => ({
+
+  const chartData = fruitsOfType.map((fruit, i) => ({
     name: fruit.name,
+    color: getRandomColor(),
     value: fruit.id
   }));
 
-  console.log(chartData)
+  console.log('fruitsOfType', fruitsOfType)
+
+  // const chartData2 = chartData.splice(chartData.length / 2);
 
   const options: Highcharts.Options = {
     chart: {
@@ -96,6 +105,40 @@ watchEffect(() => {
     },
     plotOptions: {
       packedbubble: {
+        point: {
+          events: {
+            mouseOver: function () {
+              const chart = this.series.chart;
+              const hoveredId = this.options.id;
+              console.log('hoveredId', this.options);
+
+              chart.series.forEach(series => {
+                series.points.forEach(point => {
+                  // We check ONLY if the point's parentage array contains the hovered ID
+                  const isChild = point.options.parentage?.includes(hoveredId);
+
+                  if (isChild) {
+                    point.setState('hover');
+                    point.graphic?.attr({ opacity: 1, zIndex: 10 });
+                  } else {
+                    // This will dim everything else, including the hovered bubble itself
+                    point.setState('inactive');
+                    point.graphic?.attr({ opacity: 0.1, zIndex: 1 });
+                  }
+                });
+              });
+            }
+            // mouseOut: function () {
+            //   const chart = this.series.chart;
+            //   chart.series.forEach(series => {
+            //     series.points.forEach(point => {
+            //       point.setState('');
+            //       if (point.graphic) point.graphic.attr({ opacity: 1, zIndex: 1 });
+            //     });
+            //   });
+            // }
+          }
+        },
         layoutAlgorithm: {
           splitSeries: false,
           gravitationalConstant: 0.02
@@ -104,7 +147,6 @@ watchEffect(() => {
           enabled: true,
           // format: '{series.name}',
           formatter: (...d) => {
-            console.log(d)
             return 'A'
           },
           style: {
@@ -119,21 +161,14 @@ watchEffect(() => {
     },
     series: chartData.map((c) => ({
       name: c.name,
+      color: c.color,
       data: [{ value: c.value }]
     }))
-    // series: [{
-    //   name: typeName,
-    //   data: chartData
-    // }]
   };
 
-  // Destroy old chart if it exists
   if (chartInstance.value) {
     chartInstance.value.destroy();
   }
-
-  // Create new chart
-  // console.log('Highcharts', Highcharts.)
   chartInstance.value = Highcharts.chart(chartTarget.value, options);
 });
 </script>

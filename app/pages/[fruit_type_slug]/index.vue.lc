@@ -9,9 +9,10 @@ const api = useApi();
 const searchQuery = ref('');
 const expandedRows = ref<Set<number>>(new Set());
 const route = useRoute();
-const fruitTypeParam = isString(route.params?.fruitTypeSlug) ? route.params.fruitTypeSlug : 'apples';
+const fruitTypeSlug = isString(route.params?.['fruit_type_slug']) ? route.params['fruit_type_slug'] : 'apple';
 
-const allFruitsResponse = await api.fetchFruitsByType(fruitTypeParam);
+const allFruitsResponse = await api.fetchFruitsByType(fruitTypeSlug);
+console.log(allFruitsResponse);
 
 const filteredApples = computed(() => {
   if (!searchQuery.value) return allFruitsResponse.data;
@@ -27,6 +28,15 @@ const toggleRow = (appleId: number) => {
     expandedRows.value.delete(appleId);
   } else {
     expandedRows.value.add(appleId);
+    // nextTick(() => {
+    //   const lightbox = new PhotoSwipeLightbox({
+    //     gallery: '#fruit-gallery' + '-' + appleId,
+    //     children: 'a',
+    //     pswpModule: PhotoSwipe
+    //   });
+    //   console.log('lightbox', lightbox);
+    //   lightbox.init();
+    // });
   }
 };
 
@@ -99,7 +109,7 @@ const getChildrenNames = (apple: AppFruit) => {
         placeholder="Search apples by name..."
         class="search-input"
       />
-      <span class="results-count">{{ filteredApples.length }} apples found</span>
+      <span class="results-count">{{ filteredApples?.length }} apples found</span>
     </div>
 
     <div class="table-container">
@@ -139,6 +149,24 @@ const getChildrenNames = (apple: AppFruit) => {
                   <h3>{{ apple.name }}</h3>
                   <p><strong>Year:</strong> {{ formatYear(apple.opening_year) }}</p>
                   <p><strong>Description:</strong> {{ apple.description || 'No description available' }}</p>
+                  <div>
+                      <p><strong>Images:</strong></p>
+                      <div class="apple-images" :id="`fruit-gallery-${apple.id}`">
+                        <a
+                          v-for="(img, i) in apple.images"
+                          :href="img"
+                          :key="img"
+                          target="_blank"
+                        >
+                          <NuxtImg
+                            class="apple-image"
+                            :alt="`image of ${apple.name} number ${i}`"
+                            :src="img"
+                            provider="baseProvider"
+                          />
+                        </a>
+                      </div>
+                  </div>
                 </div>
 
                 <div class="details-grid">
@@ -229,7 +257,7 @@ h1 {
 }
 
 .table-container {
-  background: white;
+  background: #22181C;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   overflow: hidden;
@@ -241,12 +269,12 @@ h1 {
 }
 
 .apples-table th {
-  background: #f8f9fa;
-  color: #2c3e50;
+  background: #22181C;
+  color: #fff;
   font-weight: 600;
   text-align: left;
   padding: 16px;
-  border-bottom: 2px solid #e1e8ed;
+  border-bottom: 2px solid #fff;
   font-size: 14px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -254,7 +282,7 @@ h1 {
 
 .apples-table td {
   padding: 16px;
-  border-bottom: 1px solid #f1f3f4;
+  border-bottom: 1px solid #fff;
 }
 
 .apple-row {
@@ -262,12 +290,25 @@ h1 {
   transition: background-color 0.2s ease;
 }
 
+.apple-images {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.apple-image {
+  aspect-ratio: 1;
+  width: 200px;
+  object-fit: cover;
+}
+
 .apple-row:hover {
-  background-color: #f8f9fa;
+  background-color: #FFD166;
 }
 
 .apple-row.expanded {
-  background-color: #e3f2fd;
+  background-color: #22181C;
 }
 
 .apple-row.highlighted {
@@ -292,26 +333,26 @@ h1 {
 
 .name-col {
   font-weight: 500;
-  color: #2c3e50;
+  color: #fff;
   min-width: 200px;
 }
 
 .year-col {
-  color: #7f8c8d;
+  color: #fff;
   font-size: 14px;
   width: 80px;
 }
 
 .parents-col,
 .children-col {
-  color: #7f8c8d;
+  color: #fff;
   font-size: 14px;
   width: 100px;
   text-align: center;
 }
 
 .details-row {
-  background-color: #f8f9fa;
+  background-color: #22181C;
 }
 
 .details-cell {
@@ -328,14 +369,14 @@ h1 {
 }
 
 .details-section h3 {
-  color: #2c3e50;
+  color: #fff;
   margin: 0 0 16px 0;
   font-size: 1.5rem;
 }
 
 .details-section p {
   margin: 8px 0;
-  color: #34495e;
+  color: #fff;
   line-height: 1.6;
 }
 
@@ -347,7 +388,7 @@ h1 {
 
 .parentage-section,
 .children-section {
-  background: white;
+  background: #22181C;
   padding: 20px;
   border-radius: 8px;
   border: 1px solid #e1e8ed;
@@ -356,7 +397,7 @@ h1 {
 .parentage-section h4,
 .children-section h4 {
   margin: 0 0 12px 0;
-  color: #2c3e50;
+  color: #fff;
   font-size: 1.1rem;
 }
 
@@ -364,7 +405,7 @@ h1 {
 .children-section ul {
   margin: 0;
   padding-left: 20px;
-  color: #34495e;
+  color: #fff;
 }
 
 .parentage-section li,
@@ -406,10 +447,10 @@ h1 {
 
 @keyframes highlight-blink {
   0% { background-color: transparent; }
-  20% { background-color: #fff3cd; }
-  40% { background-color: #ffeaa7; }
-  60% { background-color: #fff3cd; }
-  80% { background-color: #ffeaa7; }
+  20% { background-color: #ffdf99; }
+  40% { background-color: #ffc530; }
+  60% { background-color: #fadd9d; }
+  80% { background-color: #FFD166; }
   100% { background-color: transparent; }
 }
 
