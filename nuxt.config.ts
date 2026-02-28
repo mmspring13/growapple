@@ -1,12 +1,11 @@
+import tailwindcss from "@tailwindcss/vite";
+
+
 export default defineNuxtConfig({
   modules: ['@nuxt/image'],
-  // colorMode: {
-  //   preference: 'dark', // Options: 'system', 'light', 'dark'
-  //   fallback: 'dark',   // If system preference is not found
-  // },
   css: [
-    '~/assets/css/main.scss',
-    'bootstrap/dist/css/bootstrap.min.css',
+    '~/assets/css/main.css',
+    // 'bootstrap/dist/css/bootstrap.min.css',
   ],
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
@@ -16,6 +15,11 @@ export default defineNuxtConfig({
   plugins: [
     "~/plugins/highcharts",
   ],
+  vite: {
+    plugins: [
+      tailwindcss(),
+    ],
+  },
   app: {
     head: {
       htmlAttrs: {
@@ -41,14 +45,7 @@ export default defineNuxtConfig({
       baseProvider: {
         name: 'baseProvider',
         provider: '#server/modules/image-provider/base.ts',
-        // options: {
-        //   baseURL: 'https://ohsniypzidwlyrpdlqma.storage.supabase.co/storage/v1/object/public/fruit_images/'
-        // }
       }
     },
-    // supabase: {
-    //   // baseURL: 'https://ohsniypzidwlyrpdlqma.storage.supabase.co/storage/v1/s3',
-    //   baseURL: 'https://ohsniypzidwlyrpdlqma.storage.supabase.co/storage/v1/object/public_fruit_images/'
-    // },
   }
 })

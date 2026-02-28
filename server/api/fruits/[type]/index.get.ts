@@ -2,9 +2,9 @@ import { defineEventHandler, getRouterParam, createError } from 'h3';
 import { fetchFruitTypes } from "#server/actions/fetch-fruit-types";
 import type {AllFruitsByTypeResponse} from "#shared/api/types";
 import {allFruitsByType} from "#server/actions/all-fruits-by-type";
-import {getQuery} from "#imports";
 import {cached} from "#server/utils/cached";
 import {useLogger} from "#server/utils/logger";
+
 
 export default defineEventHandler<Promise<AllFruitsByTypeResponse>>(async (event) => {
   const log = useLogger('api');
@@ -14,7 +14,7 @@ export default defineEventHandler<Promise<AllFruitsByTypeResponse>>(async (event
   const take = query.take ? Number(query.take) : 100;
   const skip = query.skip ? Number(query.skip) : 0;
   const key = `api:fruits/${typeSlug}?take=${take}&skip=${skip}`;
-  log.info({ key }, 'start request');
+  log.info({ key, type: typeSlug }, 'try to fetch all fruits by type');
   if (!typeSlug) {
     throw createError({ statusCode: 400, statusMessage: 'Fruit type slug is required' });
   }

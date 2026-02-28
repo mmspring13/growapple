@@ -10,21 +10,30 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@apollo/server": "^5.4.0",
+    "@as-integrations/h3": "^2.0.3",
     "@nuxt/image": "^2.0.0",
     "@supabase/supabase-js": "^2.97.0",
+    "@tailwindcss/vite": "^4.2.1",
     "bootstrap": "^5.3.8",
+    "d3": "^7.9.0",
+    "graphql": "^16.13.0",
     "highcharts": "^12.5.0",
     "highcharts-vue": "^2.0.1",
+    "lucide-vue-next": "^0.575.0",
     "nuxt": "^4.3.1",
     "photoswipe": "^5.4.4",
     "pino": "^10.3.1",
     "pino-pretty": "^13.1.3",
+    "tailwindcss": "^4.2.1",
     "vue": "^3.5.28",
     "vue-router": "^4.6.4"
   },
   "devDependencies": {
     "@types/bootstrap": "^5.2.10",
+    "@types/d3": "^7.4.3",
     "postcss": "^8.5.6",
-    "sass-embedded": "^1.97.3"
+    "sass-embedded": "^1.97.3",
+    "supabase": "^2.76.15"
   }
 }

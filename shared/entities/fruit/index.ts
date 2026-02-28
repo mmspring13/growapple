@@ -12,7 +12,7 @@ export type AppFruit = {
   rest?:        object;
 };
 
-  export type AppTypeFruit = {
+export type AppTypeFruit = {
   id:   number;
   slug: string;
   name: string;

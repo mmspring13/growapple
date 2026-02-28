@@ -1,0 +1,45 @@
+@import "tailwindcss";
+/*@import "bootstrap/scss/functions";*/
+/*@import "bootstrap/scss/variables";*/
+/*@import "bootstrap/scss/variables-dark";*/
+/*@import "bootstrap/scss/maps";*/
+/*@import "bootstrap/scss/mixins";*/
+/*@import "bootstrap/scss/utilities";*/
+
+/*$all-colors: map-merge-multiple($grays, $greens, $teals, $cyans, $reds);*/
+
+/*$utilities: map-merge(*/
+/*    $utilities,*/
+/*    (*/
+/*      "color": map-merge(*/
+/*          map-get($utilities, "color"),*/
+/*          (*/
+/*            values: map-merge(*/
+/*                map-get(map-get($utilities, "color"), "values"),*/
+/*                  (*/
+/*                    $all-colors*/
+/*                  ),*/
+/*            ),*/
+/*          ),*/
+/*      ),*/
+/*      "background-color": map-merge(*/
+/*          map-get($utilities, "background-color"),*/
+/*          (*/
+/*            values: map-merge(*/
+/*                map-get(map-get($utilities, "background-color"), "values"),*/
+/*                  (*/
+/*                    $all-colors*/
+/*                  ),*/
+/*            ),*/
+/*          ),*/
+/*      ),*/
+/*    ),*/
+/*);*/
+
+/*:root {*/
+/*  @each $color, $value in $all-colors {*/
+/*    --#{$prefix}#{$color}: #{$value};*/
+/*  }*/
+/*}*/
+
+/*@import "bootstrap/scss/utilities/api";*/
