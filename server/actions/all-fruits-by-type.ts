@@ -1,4 +1,3 @@
-import {createError} from "h3";
 import {useSupabase} from "#server/modules/supabase";
 import {DbFruit, DbFruitMeta} from "#server/entities/fruit";
 import {fetchFruitTypes} from "./fetch-fruit-types";
@@ -20,8 +19,6 @@ export const allFruitsByType: AllFruitsByType = async (fruitTypeId: number) => {
 
   if (fruitsMetaError) throw fruitsMetaError;
   if (!fruitsMetaData?.length) return { fruits: [], type: null };
-
-  const types = await fetchFruitTypes();
 
   const fruitIds = fruitsMetaData.map((meta: DbFruitMeta) => meta.fruit_id);
 
@@ -56,6 +53,9 @@ export const allFruitsByType: AllFruitsByType = async (fruitTypeId: number) => {
 
   const appFruits = fruitsMetaData.map((meta: DbFruitMeta) => {
     const fruit = fruitsMap.get(meta.fruit_id);
+    if (!fruit) {
+      return null;
+    }
 
     return {
       id: fruit.id,

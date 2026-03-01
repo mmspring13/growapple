@@ -24,11 +24,14 @@ export default defineEventHandler<Promise<AllFruitsByTypeResponse>>(async (event
       key,
     }, 'no-cached request started');
     const types = await fetchFruitTypes();
+    console.log('111', types);
     const type = types.find((t) => t.slug === typeSlug);
     if (!type) {
       throw createError({ statusCode: 400, statusMessage: `Can't find type by slug = ${typeSlug}` });
     }
+    console.log('333');
     const allFruitsResponse = await allFruitsByType(type.id);
+    console.log('444', allFruitsResponse);
     if (!allFruitsResponse.type) {
       throw createError({
         statusCode: 400, statusMessage: `Can't find type by id = ${type.id}`

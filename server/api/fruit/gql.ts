@@ -1,111 +1,57 @@
-import { ApolloServer } from '@apollo/server'
-import { startServerAndCreateH3Handler } from '@as-integrations/h3'
-import { buildSchema } from "graphql/utilities";
-import type {GraphQLTypeResolver} from "graphql/type";
-import type {IExecutableSchemaDefinition} from "@graphql-tools/schema";
 import {useSupabase} from "#server/modules/supabase";
-
-const books = [
-  {
-    id: '1',
-    title: 'The Great Gatsby',
-    author: 'F. Scott Fitzgerald',
-    year: 1925,
-    genre: 'Novel',
-    books: [
-      {
-        id: '2',
-        title: 'To Kill a Mockingbird',
-        author: 'Harper Lee',
-        year: 1960,
-        genre: 'Southern Gothic'
-      }
-    ]
-  },
-  {
-    id: '2',
-    title: 'To Kill a Mockingbird',
-    author: 'Harper Lee',
-    year: 1960,
-    genre: 'Southern Gothic'
-  }
-];
-
-// const schema = `#graphql
-//   # A book has a title, author, and publication year
-//   type Book {
-//     id: ID!
-//     title: String!
-//     author: String!
-//     year: Int
-//     genre: String
-//     books: [Book]
-//   }
-//
-//   # The "Query" type is the root of all GraphQL queries
-//   type Query {
-//     # Get all books
-//     books: [Book!]!
-//     # Get a specific book by ID
-//     book(id: ID!): Book
-//     # Search books by title or author
-//     searchBooks(query: String!): [Book!]!
-//   }
-// `
-//
-// // Define resolvers for the schema fields
-// const root = {
-//   Query: {
-//     // Resolver for fetching all books
-//     books: () => books,
-//
-//     // Resolver for fetching a single book by ID
-//     book: (parent, args) => {
-//       return books.find((book) => book.id === args.id);
-//     },
-//
-//     // Resolver for searching books
-//     searchBooks: ({ query }) => {
-//       const searchTerm = query.toLowerCase();
-//       return books.filter(
-//         book =>
-//           book.title.toLowerCase().includes(searchTerm) ||
-//           book.author.toLowerCase().includes(searchTerm)
-//       );
-//     }
-//   }
-// };
+import {ApolloServer} from "@apollo/server";
+import {startServerAndCreateH3Handler} from "@as-integrations/h3";
 
 const schema = `#graphql
+  type SubFruits {
+    totalCount: Int!
+    hasMore: Boolean!
+    data: [Fruit!]!
+  }
+  
+  type FruitAvatar {
+    url: String!
+  }
+
   type Fruit {
     id: ID!
     slug: String!
     type: FruitType!
+    avatar: FruitAvatar!
     name: String
     description: String
     short_description: String
     opening_year: Int
     images: [String]
-    parentage: [Fruit]
-    children: [Fruit]
+    parentage: SubFruits
+    children: SubFruits
   }
-  
+
   type FruitType {
     id: ID!
     slug: String!
     name: String
   }
+
+  type Pagination {
+    skip: Int!
+    take: Int!
+    hasNextPage: Boolean!
+  }
   
+  type Fruits {
+    totalCount: Int
+    data: [Fruit!]!
+    pageInfo: Pagination!
+  }
+
   type Query {
     fruit(slug: String!): Fruit
-    fruits(first: Int, offset: Int): {
-      totalCount: Int
-      edges
-    }
+    fruits(type: String!, skip: Int, take: String): Fruits
   }
 `;
 
-const fetchFruitBySlug = async (idOrSlug: string) => {
+const fetchFruitBySlug = async (idOrSlug: string | number) => {
   const sp = useSupabase();
   let eqKey = typeof idOrSlug === 'string' ? 'slug' : 'id';
   const { data, error } = await sp.from('v_fruits_merged')
@@ -134,22 +80,53 @@ const fetchFruitType = async (id: number) => {
 
 const root = {
   Query: {
-    fruits: async () => {
+    fruits: async (parent, args) => {
       const sp = useSupabase();
-      const { data, error } = await sp.from('v_fruits_merged').select('*');
-      return data;
+      const typeSlug = args.type || 'apple';
+      const skip = args.skip || 0;
+      const take = args.take || 36;
+      const { count: totalCount } = await sp.from('v_fruits_merged')
+        .select('*', {
+          count: 'exact',
+          head: true,
+        }).eq('type', typeSlug);
+      const { data, error } = await sp.from('v_fruits_merged')
+        .select('*')
+        .eq('type', typeSlug)
+        .range(skip, take);
+
+      return {
+        totalCount,
+        data: data || [],
+        pageInfo: {
+          skip,
+          take,
+          hasNextPage: totalCount ? skip + take < totalCount : false,
+        }
+      };
     },
 
-    fruit: async (parent, args , ...r) => {
-      const sp = useSupabase();
+    fruit: async (parent, args) => {
       const data = await fetchFruitBySlug(args.slug);
-      const parentage = await Promise.all(data.parentage.map(fetchFruitBySlug));
-      const children = await fetchFruitChildren(data.id);
+      const parentage = {
+        data: [],
+        hasMore: false,
+        totalCount: 2,
+      };
+      const children = {
+        data: [],
+        hasMore: true,
+        totalCount: 10,
+      };
+      // const parentage = await Promise.all(data.parentage.map(fetchFruitBySlug));
+      // const children = await fetchFruitChildren(data.id);
       const type = await fetchFruitType(data.type);
+      const avatar = { url: "__none__" };
       return {
         ...data,
         parentage,
         children,
+        avatar,
         type,
       };
     }

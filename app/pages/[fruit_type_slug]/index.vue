@@ -9,16 +9,16 @@ const searchQuery = ref('');
 const route = useRoute();
 const fruitTypeSlug = isString(route.params?.['fruit_type_slug']) ? route.params['fruit_type_slug'] : 'apple';
 
-const allFruitsResponse = await api.fetchFruitsByType(fruitTypeSlug);
-
-const filteredApples = computed(() => {
-  if (!searchQuery.value) return allFruitsResponse.data;
-
-  const query = searchQuery.value.toLowerCase();
-  return allFruitsResponse.data.filter(apple =>
-    apple.name.toLowerCase().includes(query)
-  );
-});
+// const allFruitsResponse = await api.fetchFruitsByType(fruitTypeSlug);
+//
+// const filteredApples = computed(() => {
+//   if (!searchQuery.value) return allFruitsResponse.data;
+//
+//   const query = searchQuery.value.toLowerCase();
+//   return allFruitsResponse.data.filter(apple =>
+//     apple.name.toLowerCase().includes(query)
+//   );
+// });
 </script>
 
 <template>
@@ -34,15 +34,16 @@ const filteredApples = computed(() => {
           class="form-control"
         />
       </div>
-      <span class="results-count align-self-center col-4">{{ filteredApples?.length }} apples found</span>
+<!--      <span class="results-count align-self-center col-4">{{ filteredApples?.length }} apples found</span>-->
     </div>
 
     <div class="pt-2">
-      <fruits-table :table-data="filteredApples" />
+      <fruit-fruits-table :type-slug="fruitTypeSlug" />
+<!--      <fruits-table :table-data="filteredApples" />-->
 
-      <div v-if="filteredApples.length === 0" class="no-results">
-        No apples found matching "{{ searchQuery }}"
-      </div>
+<!--      <div v-if="filteredApples.length === 0" class="no-results">-->
+<!--        No apples found matching "{{ searchQuery }}"-->
+<!--      </div>-->
     </div>
   </div>
 </template>

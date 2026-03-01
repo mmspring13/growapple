@@ -1,0 +1,53 @@
+fragment AppFruitAvatar on FruitAvatar {
+  url
+}
+
+fragment AppFruit on Fruit {
+  id
+  slug
+  short_description
+  description
+  name
+  opening_year
+  avatar {
+    ...AppFruitAvatar
+  }
+  images
+  type {
+    id
+    name
+    slug
+  }
+  parentage {
+    totalCount
+    hasMore
+    data {
+      id
+      name
+      slug
+      opening_year
+      avatar {
+        ...AppFruitAvatar
+      }
+    }
+  }
+  children {
+    totalCount
+    hasMore
+    data {
+      id
+      name
+      slug
+      opening_year
+      avatar {
+        ...AppFruitAvatar
+      }
+    }
+  }
+}
+
+query AppFruit($slug: String!) {
+  fruit(slug: $slug) {
+    ...AppFruit
+  }
+}

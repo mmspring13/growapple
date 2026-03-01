@@ -37,7 +37,7 @@ export default defineEventHandler<Promise<AllFruitsByTypeResponse>>(async (event
       data: allFruitsResponse.fruits,
     }
   };
-  return null;
+  return {};
   // return cached(
   //   request,
   //   `api:${method}:${typeSlug}:${take}:${skip}`,

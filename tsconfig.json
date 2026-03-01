@@ -14,5 +14,13 @@
     {
       "path": "./.nuxt/tsconfig.node.json"
     }
-  ]
+  ],
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "@0no-co/graphqlsp",
+        "schema": "./schema.graphql"
+      }
+    ]
+  }
 }

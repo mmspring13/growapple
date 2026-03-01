@@ -56,7 +56,7 @@ const currentYear = computed(() => new Date().getFullYear())
             </NuxtLink>
           </div>
           <div class="flex items-center gap-6">
-            <NuxtLink class="text-sm font-medium text-stone-600 dark:text-stone-400 hover:text-orange-600 dark:hover:text-orange-400 transition-colors" aria-current="page" href="#">Home</NuxtLink>
+            <NuxtLink class="text-sm font-medium text-stone-600 dark:text-stone-400 hover:text-orange-600 dark:hover:text-orange-400 transition-colors" aria-current="page" href="/">Home</NuxtLink>
             <NuxtLink class="text-sm font-medium text-stone-600 dark:text-stone-400 hover:text-orange-600 dark:hover:text-orange-400 transition-colors" href="/apple">Apples</NuxtLink>
             <NuxtLink class="text-sm font-medium text-stone-600 dark:text-stone-400 hover:text-orange-600 dark:hover:text-orange-400 transition-colors" href="/bubbles">Bubbles</NuxtLink>
             <NuxtLink to="/" class="text-sm font-medium text-stone-600 dark:text-stone-400 hover:text-orange-600 dark:hover:text-orange-400 transition-colors">

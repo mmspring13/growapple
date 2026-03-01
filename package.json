@@ -10,6 +10,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@apollo/client": "^4.1.6",
     "@apollo/server": "^5.4.0",
     "@as-integrations/h3": "^2.0.3",
     "@nuxt/image": "^2.0.0",
@@ -25,11 +26,21 @@
     "photoswipe": "^5.4.4",
     "pino": "^10.3.1",
     "pino-pretty": "^13.1.3",
+    "rxjs": "^7.8.2",
     "tailwindcss": "^4.2.1",
     "vue": "^3.5.28",
     "vue-router": "^4.6.4"
   },
   "devDependencies": {
+    "@0no-co/graphqlsp": "^1.15.2",
+    "@graphql-codegen/cli": "^6.1.2",
+    "@graphql-codegen/client-preset": "^5.2.3",
+    "@graphql-codegen/near-operation-file-preset": "^4.0.0",
+    "@graphql-codegen/schema-ast": "^5.0.0",
+    "@graphql-codegen/typed-document-node": "^6.1.6",
+    "@graphql-codegen/typescript-generic-sdk": "^4.1.0",
+    "@graphql-codegen/typescript-operations": "^5.0.8",
+    "@parcel/watcher": "^2.5.6",
     "@types/bootstrap": "^5.2.10",
     "@types/d3": "^7.4.3",
     "postcss": "^8.5.6",

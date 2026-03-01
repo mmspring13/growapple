@@ -1,0 +1,50 @@
+schema {
+  query: Query
+}
+
+type Fruit {
+  avatar: FruitAvatar!
+  children: SubFruits
+  description: String
+  id: ID!
+  images: [String]
+  name: String
+  opening_year: Int
+  parentage: SubFruits
+  short_description: String
+  slug: String!
+  type: FruitType!
+}
+
+type FruitAvatar {
+  url: String!
+}
+
+type FruitType {
+  id: ID!
+  name: String
+  slug: String!
+}
+
+type Fruits {
+  data: [Fruit!]!
+  pageInfo: Pagination!
+  totalCount: Int
+}
+
+type Pagination {
+  hasNextPage: Boolean!
+  skip: Int!
+  take: Int!
+}
+
+type Query {
+  fruit(slug: String!): Fruit
+  fruits(skip: Int, take: String, type: String!): Fruits
+}
+
+type SubFruits {
+  data: [Fruit!]!
+  hasMore: Boolean!
+  totalCount: Int!
+}

@@ -1,0 +1,31 @@
+fragment SubItemListOfFruits on SubFruits {
+  totalCount
+}
+
+query ListOfFruits($type: String!, $skip: Int, $take: String) {
+  fruits(type: $type, skip: $skip, take: $take) {
+    totalCount
+    pageInfo {
+      skip
+      take
+      hasNextPage
+    }
+    data {
+      id
+      slug
+      name
+      opening_year
+      images
+      short_description
+      avatar {
+        ...AppFruitAvatar
+      }
+      children {
+        ...SubItemListOfFruits
+      }
+      parentage {
+        ...SubItemListOfFruits
+      }
+    }
+  }
+}

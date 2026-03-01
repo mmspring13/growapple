@@ -16,6 +16,9 @@ export default defineNuxtConfig({
     "~/plugins/highcharts",
   ],
   vite: {
+    optimizeDeps: {
+      exclude: ['@graphql-typed-document-node/core'],
+    },
     plugins: [
       tailwindcss(),
     ],
@@ -37,10 +40,9 @@ export default defineNuxtConfig({
     protectedRouteKey: process.env.PROTECTED_ROUTE_KEY,
     protectedRouteHeader: process.env.PROTECTED_ROUTE_HEADER,
   },
-  ssr: false,
+  ssr: true,
   image: {
     format: ['webp'],
-    // domains: ['ohsniypzidwlyrpdlqma.storage.supabase.co'],
     providers: {
       baseProvider: {
         name: 'baseProvider',

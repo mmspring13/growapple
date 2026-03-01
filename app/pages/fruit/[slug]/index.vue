@@ -1,8 +1,31 @@
 <script setup lang="ts">
-const route = useRoute();
-const fruitSlug = route.params.slug;
-// const
+import { ArrowLeft, Calendar, MapPin, GitBranch } from 'lucide-vue-next';
+import FruitsGeneticTree from "~/components/fruits-genetic-tree/fruits-genetic-tree.vue";
+import { AppFruitDocument, type AppFruitQuery, type AppFruitQueryVariables } from "~/composables/fruit/fruit.generated";
 
+const route = useRoute();
+const fruitSlug = route.params.slug as string;
+
+const { $apollo } = useNuxtApp();
+
+const query = await $apollo.query<AppFruitQuery, AppFruitQueryVariables>({
+  query: AppFruitDocument,
+  variables: {
+    slug: fruitSlug
+  }
+});
+
+const fruit = query?.data?.fruit;
+
+if (!fruit) {
+  throw createError({
+    statusCode: 404,
+    statusMessage: 'Fruit not found'
+  });
+}
+
+const parents = fruit.parentage?.data || [];
+const children = fruit.children?.data || [];
 </script>
 
 <template>
@@ -17,14 +40,14 @@ const fruitSlug = route.params.slug;
         <div>
           <div class="flex items-center gap-3 mb-2">
             <span class="px-3 py-1 rounded-full text-xs font-mono bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300 uppercase tracking-wider">
-              {{ apple.id }}
+              {{ fruit.id }}
             </span>
           </div>
           <h1 class="text-5xl font-serif font-medium text-stone-900 dark:text-stone-100 tracking-tight mb-4">
-            {{ apple.name }}
+            {{ fruit.name }}
           </h1>
           <p class="text-xl text-stone-600 dark:text-stone-300 leading-relaxed max-w-2xl">
-            {{ apple.description }}
+            {{ fruit.description }}
           </p>
         </div>
 
@@ -33,21 +56,14 @@ const fruitSlug = route.params.slug;
             <Calendar class="w-5 h-5 text-stone-400 dark:text-stone-500" />
             <div>
               <div class="text-xs text-stone-500 dark:text-stone-400 uppercase tracking-wider font-bold">Introduced</div>
-              <div class="font-mono text-stone-900 dark:text-stone-200">{{ apple.opening_year || "Unknown" }}</div>
+              <div class="font-mono text-stone-900 dark:text-stone-200">{{ fruit.opening_year || "Unknown" }}</div>
             </div>
           </div>
           <div class="flex items-center gap-2">
             <MapPin class="w-5 h-5 text-stone-400 dark:text-stone-500" />
             <div>
-              <div class="text-xs text-stone-500 dark:text-stone-400 uppercase tracking-wider font-bold">Origin</div>
-              <div class="text-stone-900 dark:text-stone-200">{{ apple.rest?.origin || "Unknown" }}</div>
-            </div>
-          </div>
-          <div class="flex items-center gap-2">
-            <div class="w-5 h-5 rounded-full border border-stone-200 dark:border-stone-700 shadow-sm" :style="{ backgroundColor: apple.rest?.color || '#ccc' }"></div>
-            <div>
-              <div class="text-xs text-stone-500 dark:text-stone-400 uppercase tracking-wider font-bold">Skin Color</div>
-              <div class="text-stone-900 dark:text-stone-200 capitalize">Characteristic</div>
+              <div class="text-xs text-stone-500 dark:text-stone-400 uppercase tracking-wider font-bold">Type</div>
+              <div class="text-stone-900 dark:text-stone-200 capitalize">{{ fruit.type?.name || "Unknown" }}</div>
             </div>
           </div>
         </div>
@@ -60,7 +76,7 @@ const fruitSlug = route.params.slug;
             </h3>
             <ul v-if="parents.length > 0" class="space-y-2">
               <li v-for="p in parents" :key="p.id">
-                <NuxtLink :to="`/apple/${p.slug}`" class="flex items-center gap-2 group">
+                <NuxtLink :to="`/fruit/${p.slug}`" class="flex items-center gap-2 group">
                   <div class="w-2 h-2 rounded-full bg-stone-300 dark:bg-stone-600 group-hover:bg-orange-500 transition-colors"></div>
                   <span class="text-stone-700 dark:text-stone-300 font-medium group-hover:text-orange-700 dark:group-hover:text-orange-400 transition-colors underline decoration-stone-300 dark:decoration-stone-700 underline-offset-4 group-hover:decoration-orange-300 dark:group-hover:decoration-orange-500">
                     {{ p.name }}
@@ -77,7 +93,7 @@ const fruitSlug = route.params.slug;
             </h3>
             <ul v-if="children.length > 0" class="space-y-2">
               <li v-for="c in children" :key="c.id">
-                <NuxtLink :to="`/apple/${c.slug}`" class="flex items-center gap-2 group">
+                <NuxtLink :to="`/fruit/${c.slug}`" class="flex items-center gap-2 group">
                   <div class="w-2 h-2 rounded-full bg-stone-300 dark:bg-stone-600 group-hover:bg-orange-500 transition-colors"></div>
                   <span class="text-stone-700 dark:text-stone-300 font-medium group-hover:text-orange-700 dark:group-hover:text-orange-400 transition-colors underline decoration-stone-300 dark:decoration-stone-700 underline-offset-4 group-hover:decoration-orange-300 dark:group-hover:decoration-orange-500">
                     {{ c.name }}
@@ -92,21 +108,22 @@ const fruitSlug = route.params.slug;
 
       <!-- Sidebar / Visual -->
       <div class="lg:col-span-1">
-        <div class="aspect-square rounded-2xl bg-gradient-to-br from-stone-100 to-stone-200 dark:from-stone-800 dark:to-stone-900 flex items-center justify-center border border-stone-100 dark:border-stone-800 shadow-inner relative overflow-hidden">
+        <div v-if="fruit.images && fruit.images.length > 0" class="aspect-square rounded-2xl bg-gradient-to-br from-stone-100 to-stone-200 dark:from-stone-800 dark:to-stone-900 flex items-center justify-center border border-stone-100 dark:border-stone-800 shadow-inner relative overflow-hidden">
+          <NuxtImg
+            class="w-full h-full object-cover rounded-2xl"
+            :alt="`Image of ${fruit.name}`"
+            :src="fruit.images[0]"
+            provider="baseProvider"
+          />
+        </div>
+        <div v-else class="aspect-square rounded-2xl bg-gradient-to-br from-stone-100 to-stone-200 dark:from-stone-800 dark:to-stone-900 flex items-center justify-center border border-stone-100 dark:border-stone-800 shadow-inner relative overflow-hidden">
           <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#444_1px,transparent_1px)] dark:bg-[radial-gradient(#888_1px,transparent_1px)] [background-size:16px_16px]"></div>
-          <div
-            class="w-48 h-48 rounded-full shadow-2xl relative z-10"
-            :style="{
-              backgroundColor: apple.rest?.color || '#ccc',
-              background: `radial-gradient(circle at 30% 30%, ${apple.rest?.color || '#ccc'}, #00000060)`
-            }"
-          >
-            <!-- Simple CSS Apple Shape tweak -->
+          <div class="w-48 h-48 rounded-full shadow-2xl relative z-10 bg-gradient-to-br from-orange-400 to-orange-600">
             <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-8 bg-stone-700 dark:bg-stone-900 rounded-full rotate-12"></div>
           </div>
         </div>
         <p class="text-center text-xs text-stone-400 dark:text-stone-500 mt-2 font-mono">
-          Representative Color Visualization
+          {{ fruit.images && fruit.images.length > 0 ? fruit.name : 'Representative Visualization' }}
         </p>
       </div>
     </div>
@@ -115,10 +132,10 @@ const fruitSlug = route.params.slug;
     <div class="pt-8 border-t border-stone-200 dark:border-stone-800">
       <h2 class="text-2xl font-serif font-medium text-stone-900 dark:text-stone-100 mb-6">Genetic Tree Visualization</h2>
       <p class="text-stone-500 dark:text-stone-400 mb-6 max-w-3xl">
-        Interactive visualization of {{ apple.name }}'s immediate genetic network.
+        Interactive visualization of {{ fruit.name }}'s immediate genetic network.
         Nodes are clickable. Top level represents parents, middle is the current variety, bottom are children.
       </p>
-      <GeneticTree :apple="apple" />
+      <fruits-genetic-tree :fruit="fruit" />
     </div>
   </div>
 </template>
