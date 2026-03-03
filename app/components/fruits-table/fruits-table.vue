@@ -1,4 +1,4 @@
-<!-- pages/apples.vue -->
+><!-- pages/apples.vue -->
 <template>
   <div class="space-y-8">
     <div class="bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 shadow-sm overflow-hidden transition-colors duration-300">
@@ -73,7 +73,7 @@
                 </span>
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-              <NuxtLink :to="`/apple/${apple.slug}`" class="text-orange-600 dark:text-orange-400 hover:text-orange-900 dark:hover:text-orange-300 inline-flex items-center gap-1 opacity-20 group-hover:opacity-100 transition-opacity">
+              <NuxtLink :to="`/fruit/${apple.slug}`" class="text-orange-600 dark:text-orange-400 hover:text-orange-900 dark:hover:text-orange-300 inline-flex items-center gap-1 opacity-20 group-hover:opacity-100 transition-opacity">
                 Details <ArrowRight class="w-4 h-4" />
               </NuxtLink>
             </td>
@@ -137,7 +137,7 @@ import {
   ListOfFruitsDocument,
   type ListOfFruitsQuery,
   type ListOfFruitsQueryVariables
-} from "~/composables/fruits/query.generated";
+} from "~/composables/fruits/list-of-fruits.generated";
 
 const props = defineProps<{
   typeSlug: string;
@@ -159,7 +159,7 @@ const fetchData = async () => {
     variables: {
       type: props.typeSlug,
       skip: currentPage.value * itemsPerPage.value,
-      take: String(itemsPerPage.value)
+      take: itemsPerPage.value
     }
   });
   

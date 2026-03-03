@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import {useApi} from "~/hooks/useApi";
+import FruitsTable from '~/components/fruits-table/fruits-table.vue'
 import { ref, computed } from 'vue';
 import {isString} from "#shared/helpers/string";
-
-const api = useApi();
 
 const searchQuery = ref('');
 const route = useRoute();
@@ -38,7 +36,7 @@ const fruitTypeSlug = isString(route.params?.['fruit_type_slug']) ? route.params
     </div>
 
     <div class="pt-2">
-      <fruit-fruits-table :type-slug="fruitTypeSlug" />
+      <fruits-table :type-slug="fruitTypeSlug" />
 <!--      <fruits-table :table-data="filteredApples" />-->
 
 <!--      <div v-if="filteredApples.length === 0" class="no-results">-->

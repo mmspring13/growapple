@@ -1,0 +1,37 @@
+fragment SubItemNetworkFruit on Fruit {
+  id
+  name
+  slug
+  opening_year
+  avatar {
+    ...AppFruitAvatar
+  }
+}
+
+fragment NetworkFruit on Fruit {
+  id
+  name
+  slug
+  parentage {
+    data {
+      ...SubItemNetworkFruit
+    }
+  }
+  children {
+    data {
+      ...SubItemNetworkFruit
+    }
+  }
+  avatar {
+    ...AppFruitAvatar
+  }
+}
+
+query FruitsNetwork($type: String!, $slugs: [String!], $take: Int) {
+  fruits(type: $type, take: $take, slugs: $slugs) {
+    totalCount
+    data {
+      ...NetworkFruit
+    }
+  }
+}

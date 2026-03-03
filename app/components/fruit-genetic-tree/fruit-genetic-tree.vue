@@ -9,7 +9,7 @@
 import { ref, onMounted, watch, nextTick } from 'vue'
 import * as d3 from 'd3'
 import { useRouter } from '#app'
-import { useTheme } from '~/composables/useTheme'
+// import { useTheme } from '~/composables/useTheme'
 
 const props = defineProps({
   apple: {
@@ -19,25 +19,26 @@ const props = defineProps({
 })
 
 const router = useRouter()
-const { theme } = useTheme()
+// const { theme } = useTheme()
 
 const svgRef = ref(null)
 const containerRef = ref(null)
 
 // Helper function to get apples by IDs (replace with your actual data fetching)
-const getApplesByIds = (ids) => {
+const getApplesByIds = (fruits) => {
   // This is a placeholder - implement based on your data structure
   // You might want to use a composable or store for this
-  return ids.map(id => ({
+  return fruits.map(({ id, slug, name }) => ({
     id,
-    slug: `apple-${id}`,
-    name: `Apple ${id}`,
+    slug,
+    name,
     parentage: []
   }))
 }
 
 // Build the tree data structure
 const buildTreeData = (apple) => {
+  console.log('>apple', apple)
   const nodes = []
   const links = []
 
@@ -51,8 +52,9 @@ const buildTreeData = (apple) => {
   })
 
   // Level -1: Parents
-  const parents = getApplesByIds(apple.parentage || [])
+  const parents = getApplesByIds(apple.parentage?.data || [])
   parents.forEach(p => {
+    console.log(p)
     nodes.push({
       id: p.id,
       slug: p.slug,
@@ -63,7 +65,7 @@ const buildTreeData = (apple) => {
     links.push({ source: p.id, target: apple.id })
 
     // Level -2: Grandparents
-    const grandparents = getApplesByIds(p.parentage || [])
+    const grandparents = getApplesByIds(p.parentage?.data || [])
     grandparents.forEach(gp => {
       if (!nodes.find(n => n.id === gp.id)) {
         nodes.push({
@@ -79,7 +81,7 @@ const buildTreeData = (apple) => {
   })
 
   // Level 1: Children
-  const children = getApplesByIds(apple.children || [])
+  const children = getApplesByIds(apple.children?.data || [])
   children.forEach(c => {
     nodes.push({
       id: c.id,
@@ -169,6 +171,72 @@ const drawTree = () => {
     .on('click', (event, d) => {
       router.push(`/apple/${d.slug}`)
     })
+    .on('mouseover', function(event, d) {
+      const hoveredNodeId = d.id
+      
+      // Dim all nodes first
+      nodeGroup.select('circle')
+        .attr('opacity', 0.3)
+      
+      // Highlight the hovered node
+      d3.select(this).select('circle')
+        .attr('opacity', 1)
+        .attr('r', d.type === 'focus' ? 35 : 25)
+      
+      // Highlight and color related nodes and links
+      svg.selectAll('.link').each(function(l) {
+        const linkSel = d3.select(this)
+        
+        // Check if this link is connected to the hovered node
+        if (l.source === hoveredNodeId) {
+          // This is a child link (hovered node -> child)
+          linkSel
+            .attr('stroke', '#ff0000')
+            .attr('stroke-width', 3)
+            .attr('opacity', 1)
+          
+          // Highlight child node in red
+          nodeGroup.filter(n => n.id === l.target)
+            .select('circle')
+            .attr('fill', '#ff0000')
+            .attr('opacity', 1)
+            .attr('r', n => n.type === 'focus' ? 35 : 25)
+        } else if (l.target === hoveredNodeId) {
+          // This is a parent link (parent -> hovered node)
+          linkSel
+            .attr('stroke', '#0000ff')
+            .attr('stroke-width', 3)
+            .attr('opacity', 1)
+          
+          // Highlight parent node in blue
+          nodeGroup.filter(n => n.id === l.source)
+            .select('circle')
+            .attr('fill', '#0000ff')
+            .attr('opacity', 1)
+            .attr('r', n => n.type === 'focus' ? 35 : 25)
+        } else {
+          // Dim unrelated links
+          linkSel.attr('opacity', 0.1)
+        }
+      })
+    })
+    .on('mouseout', function() {
+      // Reset all nodes
+      nodeGroup.select('circle')
+        .attr('opacity', 1)
+        .attr('r', d => d.type === 'focus' ? 30 : 20)
+        .attr('fill', d => {
+          if (d.type === 'focus') return '#F27D26'
+          if (d.type === 'parent' || d.type === 'grandparent') return '#E6E65C'
+          return '#E85D5D'
+        })
+      
+      // Reset all links
+      svg.selectAll('.link')
+        .attr('stroke', 'currentColor')
+        .attr('stroke-width', 2)
+        .attr('opacity', 1)
+    })
 
   // Node Circles
   nodeGroup.append('circle')
@@ -186,7 +254,9 @@ const drawTree = () => {
   nodeGroup.append('text')
     .attr('dy', d => d.type === 'focus' ? 45 : 35)
     .attr('text-anchor', 'middle')
-    .text(d => d.name)
+    .text(d => {
+      return d.name
+    })
     .attr('class', 'text-xs font-sans font-medium fill-stone-700 dark:fill-stone-300')
     .style('font-size', '12px')
     .style('pointer-events', 'none')
@@ -194,29 +264,29 @@ const drawTree = () => {
 
 // Create theme composable if it doesn't exist
 // You can create this file at composables/useTheme.ts
-if (!useTheme) {
-  // Fallback theme detection
-  const isDark = ref(false)
-
-  onMounted(() => {
-    isDark.value = document.documentElement.classList.contains('dark')
-
-    // Watch for theme changes
-    const observer = new MutationObserver(() => {
-      isDark.value = document.documentElement.classList.contains('dark')
-    })
-
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['class']
-    })
-  })
-
-  // Provide a simple theme composable if not available
-  const useTheme = () => ({
-    theme: computed(() => isDark.value ? 'dark' : 'light')
-  })
-}
+// if (!useTheme) {
+//   // Fallback theme detection
+//   const isDark = ref(false)
+//
+//   onMounted(() => {
+//     isDark.value = document.documentElement.classList.contains('dark')
+//
+//     // Watch for theme changes
+//     const observer = new MutationObserver(() => {
+//       isDark.value = document.documentElement.classList.contains('dark')
+//     })
+//
+//     observer.observe(document.documentElement, {
+//       attributes: true,
+//       attributeFilter: ['class']
+//     })
+//   })
+//
+//   // Provide a simple theme composable if not available
+//   const useTheme = () => ({
+//     theme: computed(() => isDark.value ? 'dark' : 'light')
+//   })
+// }
 
 // Draw on mount and when apple or theme changes
 onMounted(() => {
@@ -231,10 +301,10 @@ watch(() => props.apple, () => {
   })
 }, { deep: true })
 
-watch(theme, () => {
-  // Redraw on theme change to update colors
-  drawTree()
-})
+// watch(theme, () => {
+//   // Redraw on theme change to update colors
+//   drawTree()
+// })
 
 // Handle window resize
 onMounted(() => {

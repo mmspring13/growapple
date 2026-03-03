@@ -40,7 +40,7 @@ type Pagination {
 
 type Query {
   fruit(slug: String!): Fruit
-  fruits(skip: Int, take: String, type: String!): Fruits
+  fruits(skip: Int, slugs: [String!], take: Int, type: String!): Fruits
 }
 
 type SubFruits {

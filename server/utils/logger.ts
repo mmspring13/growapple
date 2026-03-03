@@ -1,7 +1,7 @@
 import pino, {type LoggerOptions} from 'pino';
 import type {H3Event} from "h3";
 
-export type ModuleName = 'api' | 'app' | 'cache';
+export type ModuleName = 'api' | 'app' | 'cache' | 'gql';
 
 export const useLogger = (
   moduleName: ModuleName,

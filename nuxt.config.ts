@@ -32,6 +32,7 @@ export default defineNuxtConfig({
       },
       viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
     },
+    pageTransition: { name: 'page', mode: 'out-in' }
   },
   runtimeConfig: {
     supabasePublishKey: process.env.SUPABASE_PUBLISH_KEY,

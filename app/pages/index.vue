@@ -33,7 +33,7 @@
       </NuxtLink>
 
       <NuxtLink
-        to="/graph"
+        to="/apple/tree"
         class="group relative overflow-hidden rounded-3xl bg-stone-100 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-8 text-left transition-all hover:border-blue-500/50 hover:shadow-lg dark:hover:border-blue-500/30"
       >
         <div class="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">

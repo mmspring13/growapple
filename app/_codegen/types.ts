@@ -69,7 +69,8 @@ export type QueryFruitArgs = {
 
 export type QueryFruitsArgs = {
   skip?: InputMaybe<Scalars['Int']['input']>;
-  take?: InputMaybe<Scalars['String']['input']>;
+  slugs?: InputMaybe<Array<Scalars['String']['input']>>;
+  take?: InputMaybe<Scalars['Int']['input']>;
   type: Scalars['String']['input'];
 };
 

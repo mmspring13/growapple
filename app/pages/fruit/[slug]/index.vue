@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ArrowLeft, Calendar, MapPin, GitBranch } from 'lucide-vue-next';
-import FruitsGeneticTree from "~/components/fruits-genetic-tree/fruits-genetic-tree.vue";
+import FruitGeneticTree from "~/components/fruit-genetic-tree/fruit-genetic-tree.vue";
 import { AppFruitDocument, type AppFruitQuery, type AppFruitQueryVariables } from "~/composables/fruit/fruit.generated";
 
 const route = useRoute();
@@ -135,7 +135,7 @@ const children = fruit.children?.data || [];
         Interactive visualization of {{ fruit.name }}'s immediate genetic network.
         Nodes are clickable. Top level represents parents, middle is the current variety, bottom are children.
       </p>
-      <fruits-genetic-tree :fruit="fruit" />
+      <fruit-genetic-tree :apple="fruit" />
     </div>
   </div>
 </template>

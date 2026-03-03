@@ -1,4 +1,15 @@
 @import "tailwindcss";
+
+.page-enter-active,
+.page-leave-active {
+  transition: all 0.24s;
+}
+
+.page-enter-from,
+.page-leave-to {
+  opacity: 0;
+  filter: blur(.6rem);
+}
 /*@import "bootstrap/scss/functions";*/
 /*@import "bootstrap/scss/variables";*/
 /*@import "bootstrap/scss/variables-dark";*/
