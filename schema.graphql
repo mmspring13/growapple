@@ -3,7 +3,7 @@ schema {
 }
 
 type Fruit {
-  avatar: FruitAvatar!
+  avatar: FruitAvatar
   children: SubFruits
   description: String
   id: ID!
@@ -13,7 +13,7 @@ type Fruit {
   parentage: SubFruits
   short_description: String
   slug: String!
-  type: FruitType!
+  type: String!
 }
 
 type FruitAvatar {

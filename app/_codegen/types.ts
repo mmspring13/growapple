@@ -16,7 +16,7 @@ export type Scalars = {
 
 export type Fruit = {
   __typename?: 'Fruit';
-  avatar: FruitAvatar;
+  avatar?: Maybe<FruitAvatar>;
   children?: Maybe<SubFruits>;
   description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
@@ -26,7 +26,7 @@ export type Fruit = {
   parentage?: Maybe<SubFruits>;
   short_description?: Maybe<Scalars['String']['output']>;
   slug: Scalars['String']['output'];
-  type: FruitType;
+  type: Scalars['String']['output'];
 };
 
 export type FruitAvatar = {

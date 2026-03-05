@@ -13,11 +13,7 @@ fragment AppFruit on Fruit {
     ...AppFruitAvatar
   }
   images
-  type {
-    id
-    name
-    slug
-  }
+  type
   parentage {
     totalCount
     hasMore

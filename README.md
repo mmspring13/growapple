@@ -1,75 +1,49 @@
-# Nuxt Minimal Starter
+# Nuxt.js GraphQL Project
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+A Nuxt.js project with GraphQL integration.
 
-## Setup
+## Features
 
-Make sure to install dependencies:
+- Nuxt.js for server-side rendering
+- GraphQL for data fetching
+- TypeScript for type safety
 
-```bash
-# npm
-npm install
+## Getting Started
 
-# pnpm
-pnpm install
+1. **Clone the repository:**
 
-# yarn
-yarn install
+   ```bash
+   git clone <repository-url>
+   ```
 
-# bun
-bun install
-```
+2. **Install dependencies:**
 
-## Development Server
+   ```bash
+   npm install
+   ```
 
-Start the development server on `http://localhost:3000`:
+3. **Run the development server:**
 
-```bash
-# npm
-npm run dev
+   ```bash
+   npm run dev
+   ```
 
-# pnpm
-pnpm dev
+## Dependencies
 
-# yarn
-yarn dev
+- [Nuxt.js](https://nuxtjs.org/)
+- [GraphQL](https://graphql.org/)
+- [Vue.js](https://vuejs.org/)
+- [TypeScript](https://www.typescriptlang.org/)
 
-# bun
-bun run dev
-```
+## Project Structure
 
-## Production
+- `app/`: Contains the main application logic.
+- `server/`: Contains the GraphQL server.
+- `public/`: Contains public assets.
+- `shared/`: Contains shared code between the client and server.
+- `nuxt.config.ts`: Nuxt.js configuration file.
+- `codegen.ts`: GraphQL codegen configuration file.
 
-Build the application for production:
+## License
 
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+This project is licensed under the MIT License.
