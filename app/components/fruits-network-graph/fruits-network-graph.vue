@@ -6,6 +6,16 @@
     </div>
     <div class="rounded-xl shadow-xl border border-stone-800 bg-[#222] p-4">
       <h3 class="text-white font-bold text-lg mb-3">Legend</h3>
+      <div class="mt-2 mb-4 flex flex-row gap-1.5">
+        <label for="parentColor">
+          <input type="color" v-model="parentColor" id="parentColor" />
+          Parent color
+        </label>
+        <label for="childrenColor">
+          <input type="color" v-model="childrenColor" id="childrenColor" />
+          Children color
+        </label>
+      </div>
       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
         <div
           v-for="fruit in sortedFruits"
@@ -58,6 +68,9 @@ const containerRef = ref<HTMLDivElement | null>(null)
 const simulation = ref<d3.Simulation<D3Node, D3Link> | null>(null)
 const hoveredFruitId = ref<number | null>(null)
 
+const parentColor = ref('#DB5461');
+const childrenColor = ref('#31AFD4');
+
 const colorMap = ref<Map<string, string>>(new Map());
 watch(() => props.fruits, () => {
   props.fruits.forEach((fruit) => {
@@ -102,7 +115,7 @@ const sortedFruits = computed(() => {
 })
 
 const handleLegendClick = (fruit: any) => {
-  router.push(`/apple/${fruit.slug}`)
+  router.push(`/fruit/${fruit.slug}`)
 }
 
 const handleLegendHover = (fruitId: number | null) => {
@@ -139,7 +152,7 @@ const highlightNodeFromLegend = (fruitId: number | null) => {
     
     nodes.select('text')
       .style('font-size', (d: any) => d.id === fruitId ? '14px' : '12px')
-      .style('font-weight', (d: any) => d.id === fruitId ? 'bold' : 'bold')
+      .style('font-weight', (d: any) => '100')
     
     // Highlight the selected node
     nodes.filter((d: any) => d.id === fruitId)
@@ -155,7 +168,7 @@ const highlightNodeFromLegend = (fruitId: number | null) => {
       const targetId = typeof l.target === 'object' ? l.target.id : l.target
       
       if (sourceId === fruitId || targetId === fruitId) {
-        sel.attr('stroke', targetId === fruitId ? '#fbbf24' : 'red')
+        sel.attr('stroke', targetId === fruitId ? parentColor.value : childrenColor.value)
           .attr('stroke-width', 3)
           .attr('stroke-opacity', 1)
         
@@ -199,7 +212,7 @@ const renderGraph = () => {
   // Prepare Links
   const links: D3Link[] = []
   filteredApples.forEach(apple => {
-    apple.parentage.data.forEach(p => {
+    apple.parentage.forEach(p => {
       // Ensure parent exists in the FILTERED dataset
       if (filteredApples.find(a => a.id === p.id)) {
         links.push({ source: p.id, target: apple.id })
@@ -256,8 +269,8 @@ const renderGraph = () => {
     .attr('x', 25)
     .attr('y', 5)
     .text(d => d.name)
-    .style('font-size', '12px')
-    .style('font-weight', 'bold')
+    .style('font-size', '14px')
+    .style('font-weight', '100')
     .style('fill', '#fff')
     .style('pointer-events', 'none')
     .style('text-shadow', '1px 1px 2px #000')
@@ -276,26 +289,26 @@ const renderGraph = () => {
 
       // 1. Identify Children (where source is current node)
       if (sourceId === activeNodeId) {
-        sel.attr('stroke', '#ff0000')
+        sel.attr('stroke', childrenColor.value)
           .attr('stroke-width', 4)
           .attr('stroke-opacity', 1)
 
         // Highlight child node (target)
         node.filter(n => n.id === targetId)
           .select('circle')
-          .attr('fill', '#ff0000')
+          .attr('fill', childrenColor.value)
       }
 
       // 2. Identify Parent (where target is current node)
       if (targetId === activeNodeId) {
-        sel.attr('stroke', '#0000ff')
+        sel.attr('stroke', parentColor.value)
           .attr('stroke-width', 4)
           .attr('stroke-opacity', 1)
 
         // Highlight parent node (source)
         node.filter(n => n.id === sourceId)
           .select('circle')
-          .attr('fill', '#0000ff')
+          .attr('fill', parentColor.value)
       }
     })
   })
@@ -311,7 +324,7 @@ const renderGraph = () => {
         .attr('fill', d => d.color)
     })
     .on('click', (event, d) => {
-      router.push(`/apple/${d.slug}`)
+      router.push(`/fruit/${d.slug}`)
     })
 
   // Simulation Tick

@@ -11,8 +11,8 @@ const config: CodegenConfig = {
     './app/': {
       preset: 'near-operation-file',
       presetConfig: {
-        extension: '.generated.ts', // This makes it: fetch-user.generated.ts
-        baseTypesPath: '~~/_codegen/types.ts', // Import the types generated above
+        extension: '.generated.ts',
+        baseTypesPath: '~~/_codegen/types.ts',
         importAllFragmentsFrom: '~types'
       },
       config: {

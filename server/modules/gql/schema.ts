@@ -1,10 +1,4 @@
 export const schema = `#graphql
-  type SubFruits {
-    totalCount: Int!
-    hasMore: Boolean!
-    data: [Fruit!]!
-  }
-  
   type FruitAvatar {
     url: String!
   }
@@ -13,15 +7,14 @@ export const schema = `#graphql
     id: ID!
     slug: String!
     type: String!
-#    type: FruitType!
     avatar: FruitAvatar
     name: String
     description: String
     short_description: String
     opening_year: Int
     images: [String]
-    parentage: SubFruits
-    children: SubFruits
+    parentage: [Fruit!]!
+    children: [Fruit!]!
   }
 
   type FruitType {
@@ -44,6 +37,13 @@ export const schema = `#graphql
 
   type Query {
     fruit(slug: String!): Fruit
-    fruits(type: String!, skip: Int, take: Int, slugs: [String!]): Fruits
+    fruits(
+      "API used 'apple' by default"
+      type: String,
+      skip: Int,
+      take: Int,
+      slugs: [String!],
+      search: String
+    ): Fruits
   }
 `;

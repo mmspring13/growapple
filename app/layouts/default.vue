@@ -41,7 +41,7 @@ const currentYear = computed(() => new Date().getFullYear())
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#FDFCF8] dark:bg-stone-950 text-stone-900 dark:text-stone-100 font-sans selection:bg-orange-200 dark:selection:bg-orange-900 transition-colors duration-300">
+  <div class="flex flex-col min-h-screen bg-[#FDFCF8] dark:bg-stone-950 text-stone-900 dark:text-stone-100 font-sans selection:bg-orange-200 dark:selection:bg-orange-900 transition-colors duration-300">
     <nav class="sticky top-0 z-50 w-full border-b border-stone-200 dark:border-stone-800 bg-[#FDFCF8]/80 dark:bg-stone-950/80 backdrop-blur-md transition-colors duration-300">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex h-16 items-center justify-between">
@@ -60,22 +60,22 @@ const currentYear = computed(() => new Date().getFullYear())
             <NuxtLink class="text-sm font-medium text-stone-600 dark:text-stone-400 hover:text-orange-600 dark:hover:text-orange-400 transition-colors" href="/apple">Apples</NuxtLink>
             <NuxtLink class="text-sm font-medium text-stone-600 dark:text-stone-400 hover:text-orange-600 dark:hover:text-orange-400 transition-colors" href="/apple/tree">Genetic Tree</NuxtLink>
             <NuxtLink target="_blank" class="text-sm font-medium text-stone-600 dark:text-stone-400 hover:text-orange-600 dark:hover:text-orange-400 transition-colors" href="/api/fruit/gql">Graphql</NuxtLink>
-            <button
-              @click="toggleTheme"
-              class="p-2 rounded-full hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-400 transition-colors"
-              :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
-            >
-              <Sun v-if="isDark" class="w-5 h-5" />
-              <Moon v-else class="w-5 h-5" />
-            </button>
+<!--            <button-->
+<!--              @click="toggleTheme"-->
+<!--              class="p-2 rounded-full hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-400 transition-colors"-->
+<!--              :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'"-->
+<!--            >-->
+<!--              <Sun v-if="isDark" class="w-5 h-5" />-->
+<!--              <Moon v-else class="w-5 h-5" />-->
+<!--            </button>-->
           </div>
         </div>
       </div>
     </nav>
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <slot />
     </main>
-    <footer class="border-t border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900 mt-12 transition-colors duration-300">
+    <footer class="mt-auto mb-0 border-t border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900 mt-12 transition-colors duration-300">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center text-stone-500 dark:text-stone-400 text-sm">
         <p>© {{ currentYear }} Apple Genealogy Project. Cultivating knowledge.</p>
       </div>

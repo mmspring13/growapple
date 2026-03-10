@@ -9,7 +9,6 @@
 import { ref, onMounted, watch, nextTick } from 'vue'
 import * as d3 from 'd3'
 import { useRouter } from '#app'
-// import { useTheme } from '~/composables/useTheme'
 
 const props = defineProps({
   apple: {
@@ -19,30 +18,23 @@ const props = defineProps({
 })
 
 const router = useRouter()
-// const { theme } = useTheme()
 
 const svgRef = ref(null)
 const containerRef = ref(null)
 
-// Helper function to get apples by IDs (replace with your actual data fetching)
-const getApplesByIds = (fruits) => {
-  // This is a placeholder - implement based on your data structure
-  // You might want to use a composable or store for this
-  return fruits.map(({ id, slug, name }) => ({
+const getApplesByIds = (ids) => {
+  return ids.map(id => ({
     id,
-    slug,
-    name,
+    slug: `apple-${id}`,
+    name: `Apple ${id}`,
     parentage: []
   }))
 }
 
-// Build the tree data structure
 const buildTreeData = (apple) => {
-  console.log('>apple', apple)
   const nodes = []
   const links = []
 
-  // Level 0: Focus Apple
   nodes.push({
     id: apple.id,
     slug: apple.slug,
@@ -51,10 +43,7 @@ const buildTreeData = (apple) => {
     type: 'focus'
   })
 
-  // Level -1: Parents
-  const parents = getApplesByIds(apple.parentage?.data || [])
-  parents.forEach(p => {
-    console.log(p)
+  apple.parentage?.forEach(p => {
     nodes.push({
       id: p.id,
       slug: p.slug,
@@ -63,26 +52,9 @@ const buildTreeData = (apple) => {
       type: 'parent'
     })
     links.push({ source: p.id, target: apple.id })
-
-    // Level -2: Grandparents
-    const grandparents = getApplesByIds(p.parentage?.data || [])
-    grandparents.forEach(gp => {
-      if (!nodes.find(n => n.id === gp.id)) {
-        nodes.push({
-          id: gp.id,
-          slug: gp.slug,
-          name: gp.name,
-          level: -2,
-          type: 'grandparent'
-        })
-      }
-      links.push({ source: gp.id, target: p.id })
-    })
   })
 
-  // Level 1: Children
-  const children = getApplesByIds(apple.children?.data || [])
-  children.forEach(c => {
+  apple.children?.forEach(c => {
     nodes.push({
       id: c.id,
       slug: c.slug,
@@ -96,7 +68,6 @@ const buildTreeData = (apple) => {
   return { nodes, links }
 }
 
-// Draw the tree
 const drawTree = () => {
   if (!svgRef.value || !containerRef.value || !props.apple) return
 
@@ -104,7 +75,6 @@ const drawTree = () => {
   const height = 600
   const margin = { top: 40, right: 90, bottom: 40, left: 90 }
 
-  // Clear previous SVG
   d3.select(svgRef.value).selectAll('*').remove()
 
   const svg = d3
@@ -114,21 +84,17 @@ const drawTree = () => {
     .append('g')
     .attr('transform', `translate(${margin.left},${margin.top})`)
 
-  // Build the data structure
   const { nodes, links } = buildTreeData(props.apple)
 
-  // Calculate positions
   const levelHeight = 150
   const centerY = height / 2 - margin.top - margin.bottom
 
-  // Group by level
   const levels = {}
   nodes.forEach(n => {
     if (!levels[n.level]) levels[n.level] = []
     levels[n.level].push(n)
   })
 
-  // Assign X/Y positions
   Object.keys(levels).forEach(key => {
     const lvl = parseInt(key)
     const nodesInLevel = levels[lvl]
@@ -141,7 +107,6 @@ const drawTree = () => {
     })
   })
 
-  // Draw Links
   svg.selectAll('.link')
     .data(links)
     .enter()
@@ -156,11 +121,9 @@ const drawTree = () => {
       const target = nodes.find(n => n.id === d.target)
       if (!source || !target) return ''
 
-      // Curved cubic bezier
       return `M${source.x},${source.y} C${source.x},${(source.y + target.y) / 2} ${target.x},${(source.y + target.y) / 2} ${target.x},${target.y}`
     })
 
-  // Draw Nodes
   const nodeGroup = svg.selectAll('.node')
     .data(nodes)
     .enter()
@@ -169,126 +132,29 @@ const drawTree = () => {
     .attr('transform', d => `translate(${d.x},${d.y})`)
     .style('cursor', 'pointer')
     .on('click', (event, d) => {
-      router.push(`/apple/${d.slug}`)
-    })
-    .on('mouseover', function(event, d) {
-      const hoveredNodeId = d.id
-      
-      // Dim all nodes first
-      nodeGroup.select('circle')
-        .attr('opacity', 0.3)
-      
-      // Highlight the hovered node
-      d3.select(this).select('circle')
-        .attr('opacity', 1)
-        .attr('r', d.type === 'focus' ? 35 : 25)
-      
-      // Highlight and color related nodes and links
-      svg.selectAll('.link').each(function(l) {
-        const linkSel = d3.select(this)
-        
-        // Check if this link is connected to the hovered node
-        if (l.source === hoveredNodeId) {
-          // This is a child link (hovered node -> child)
-          linkSel
-            .attr('stroke', '#ff0000')
-            .attr('stroke-width', 3)
-            .attr('opacity', 1)
-          
-          // Highlight child node in red
-          nodeGroup.filter(n => n.id === l.target)
-            .select('circle')
-            .attr('fill', '#ff0000')
-            .attr('opacity', 1)
-            .attr('r', n => n.type === 'focus' ? 35 : 25)
-        } else if (l.target === hoveredNodeId) {
-          // This is a parent link (parent -> hovered node)
-          linkSel
-            .attr('stroke', '#0000ff')
-            .attr('stroke-width', 3)
-            .attr('opacity', 1)
-          
-          // Highlight parent node in blue
-          nodeGroup.filter(n => n.id === l.source)
-            .select('circle')
-            .attr('fill', '#0000ff')
-            .attr('opacity', 1)
-            .attr('r', n => n.type === 'focus' ? 35 : 25)
-        } else {
-          // Dim unrelated links
-          linkSel.attr('opacity', 0.1)
-        }
-      })
-    })
-    .on('mouseout', function() {
-      // Reset all nodes
-      nodeGroup.select('circle')
-        .attr('opacity', 1)
-        .attr('r', d => d.type === 'focus' ? 30 : 20)
-        .attr('fill', d => {
-          if (d.type === 'focus') return '#F27D26'
-          if (d.type === 'parent' || d.type === 'grandparent') return '#E6E65C'
-          return '#E85D5D'
-        })
-      
-      // Reset all links
-      svg.selectAll('.link')
-        .attr('stroke', 'currentColor')
-        .attr('stroke-width', 2)
-        .attr('opacity', 1)
+      router.push(`/fruit/${d.slug}`)
     })
 
-  // Node Circles
   nodeGroup.append('circle')
     .attr('r', d => d.type === 'focus' ? 30 : 20)
     .attr('fill', d => {
-      if (d.type === 'focus') return '#F27D26' // Accent
-      if (d.type === 'parent' || d.type === 'grandparent') return '#E6E65C' // Yellowish
-      return '#E85D5D' // Reddish
+      if (d.type === 'focus') return '#F27D26'
+      if (d.type === 'parent' || d.type === 'grandparent') return '#E6E65C'
+      return '#E85D5D'
     })
     .attr('stroke', 'currentColor')
     .attr('class', 'text-white dark:text-stone-900 transition-all duration-300 hover:scale-110')
     .attr('stroke-width', 2)
 
-  // Node Labels
   nodeGroup.append('text')
     .attr('dy', d => d.type === 'focus' ? 45 : 35)
     .attr('text-anchor', 'middle')
-    .text(d => {
-      return d.name
-    })
+    .text(d => d.name)
     .attr('class', 'text-xs font-sans font-medium fill-stone-700 dark:fill-stone-300')
     .style('font-size', '12px')
     .style('pointer-events', 'none')
 }
 
-// Create theme composable if it doesn't exist
-// You can create this file at composables/useTheme.ts
-// if (!useTheme) {
-//   // Fallback theme detection
-//   const isDark = ref(false)
-//
-//   onMounted(() => {
-//     isDark.value = document.documentElement.classList.contains('dark')
-//
-//     // Watch for theme changes
-//     const observer = new MutationObserver(() => {
-//       isDark.value = document.documentElement.classList.contains('dark')
-//     })
-//
-//     observer.observe(document.documentElement, {
-//       attributes: true,
-//       attributeFilter: ['class']
-//     })
-//   })
-//
-//   // Provide a simple theme composable if not available
-//   const useTheme = () => ({
-//     theme: computed(() => isDark.value ? 'dark' : 'light')
-//   })
-// }
-
-// Draw on mount and when apple or theme changes
 onMounted(() => {
   nextTick(() => {
     drawTree()
@@ -301,12 +167,6 @@ watch(() => props.apple, () => {
   })
 }, { deep: true })
 
-// watch(theme, () => {
-//   // Redraw on theme change to update colors
-//   drawTree()
-// })
-
-// Handle window resize
 onMounted(() => {
   const handleResize = () => {
     drawTree()
@@ -319,3 +179,121 @@ onMounted(() => {
   })
 })
 </script>
+
+<!--<template>-->
+<!--  <div ref="container"></div>-->
+<!--</template>-->
+
+<!--<script setup lang="ts">-->
+<!--import { ref, onMounted, watch } from 'vue';-->
+<!--import * as d3 from 'd3';-->
+
+<!--const props = defineProps<{-->
+<!--  fruit: any;-->
+<!--  allFruits: any[];-->
+<!--  colorMap: Map<string, string>;-->
+<!--  hoveredFruitId: number | null;-->
+<!--}>();-->
+
+<!--const emits = defineEmits<{ (e: 'node-click', fruit: any): void; (e: 'node-hover', fruitId: number | null): void }>();-->
+<!--const container = ref(null);-->
+
+<!--const createChart = () => {-->
+<!--  if (!container.value) return;-->
+<!--  d3.select(container.value).select('svg').remove();-->
+
+<!--  const root = d3.hierarchy(props.fruit, getChildren);-->
+<!--  const screenWidth = window.innerWidth;-->
+<!--  const isSmallScreen = screenWidth < 768;-->
+<!--  const nodeSize = { width: isSmallScreen ? 220 : 300, height: isSmallScreen ? 200 : 150 };-->
+<!--  const treeLayout = d3.tree().nodeSize([nodeSize.height, nodeSize.width]);-->
+
+<!--  treeLayout(root);-->
+<!--  -->
+<!--  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;-->
+<!--  root.each(d => {-->
+<!--    if (d.x < minX) minX = d.x;-->
+<!--    if (d.x > maxX) maxX = d.x;-->
+<!--    if (d.y < minY) minY = d.y;-->
+<!--    if (d.y > maxY) maxY = d.y;-->
+<!--  });-->
+
+<!--  const width = maxY - minY + nodeSize.width * 2;-->
+<!--  const height = maxX - minX + nodeSize.height * 2;-->
+
+<!--  const svg = d3.select(container.value).append('svg')-->
+<!--    .attr('width', width)-->
+<!--    .attr('height', height)-->
+<!--    .attr('class', 'overflow-visible');-->
+
+<!--  const g = svg.append('g').attr('transform', `translate(${nodeSize.width / 2 - minY}, ${height / 2 - (maxX + minX) / 2})`);-->
+
+<!--  g.selectAll('.link')-->
+<!--    .data(root.links())-->
+<!--    .enter().append('path')-->
+<!--      .attr('d', d => `M${d.source.y},${d.source.x} L${d.target.y},${d.target.x}`)-->
+<!--      .attr('class', 'link');-->
+
+<!--  const node = g.selectAll('.node')-->
+<!--    .data(root.descendants())-->
+<!--    .enter().append('g')-->
+<!--      .attr('transform', d => `translate(${d.y},${d.x})`)-->
+<!--      .attr('class', 'node')-->
+<!--      .on('click', (event, d) => emits('node-click', d.data))-->
+<!--      .on('mouseenter', (event, d) => emits('node-hover', d.data.id))-->
+<!--      .on('mouseleave', () => emits('node-hover', null))-->
+<!--      .style('cursor', 'pointer');-->
+<!--      -->
+
+<!--  node.append('rect')-->
+<!--    .attr('width', 200)-->
+<!--    .attr('height', 100)-->
+<!--    .attr('rx', 10)-->
+<!--    .attr('ry', 10)-->
+<!--    .attr('x', -100)-->
+<!--    .attr('y', -50)-->
+<!--    .attr('class', 'node-rect');-->
+
+<!--  node.append('text')-->
+<!--    .attr('dy', '.35em')-->
+<!--    .attr('text-anchor', 'middle')-->
+<!--    .text(d => d.data?.name)-->
+<!--    .attr('class', 'node-text');-->
+
+<!--  function getChildren(d) {-->
+<!--    if (!d?.parentage) return null;-->
+<!--    return d.parentage.map(p => props.allFruits.find(f => f.id === p.id)).filter(Boolean);-->
+<!--  }-->
+
+<!--  watch(() => props.hoveredFruitId, (newId) => {-->
+<!--    node.selectAll('.node-rect').style('stroke', d => d.data?.id === newId ? 'white' : 'transparent')-->
+<!--      .style('stroke-width', d => d.data.id === newId ? 3 : 1);-->
+<!--  });-->
+
+
+<!--}-->
+
+<!--onMounted(createChart);-->
+
+<!--watch(props, createChart, { deep: true, immediate: true });-->
+
+<!--</script>-->
+
+<!--<style>-->
+<!--.node-rect {-->
+<!--  stroke: transparent;-->
+<!--  stroke-width: 1px;-->
+<!--  transition: stroke 0.3s, node-text;-->
+<!--  fill: white;-->
+<!--  font-size: 1.1rem;-->
+<!--  font-weight: 500;-->
+<!--  text-shadow: 0 1px 3px rgba(0,0,0,0.5);-->
+<!--}-->
+
+<!--.link {-->
+<!--  fill: none;-->
+<!--  stroke: #555;-->
+<!--  stroke-width: 2px;-->
+<!--  stroke-dasharray: 2, 2;-->
+<!--}-->
+<!--</style>-->

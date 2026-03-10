@@ -25,15 +25,16 @@
     </div>
 
     <fruits-network-graph :fruits="fruits" />
+<!--    <fruits-network-graph-static :fruits="fruits" />-->
 
 <!--    <AppleNetworkGraph :selected-apple-ids="selectedAppleIds" />-->
 
-<!--      <fruits-select-modal-->
-<!--        :is-open="isModalOpen"-->
-<!--        :selected-ids="selectedAppleIds"-->
-<!--        @close="closeModal"-->
-<!--        @update:selected-ids="updateSelectedIds"-->
-<!--      />-->
+    <fruits-select-modal
+      :is-open="isModalOpen"
+      :selected="selectedFruits"
+      @close="closeModal"
+      @update:selected-ids="updateSelectedFruits"
+    />
   </div>
 </template>
 
@@ -46,77 +47,87 @@ import {
   type FruitsNetworkQueryVariables
 } from "~/composables/fruits/fruits-network.generated";
 
-// Nuxt 3 composition API with auto-imports
+const props = withDefaults(defineProps<{
+  parentColor: string;
+  childrenColor: string;
+}>(), {
+  parentColor: '#1EFC1E',
+  childrenColor: '#7F7EFF'
+});
+
+const config = useRuntimeConfig();
+
 const isModalOpen = ref(false)
 
-const selectedFruits = ref<string[]>([
-  {
-    "slug": "ruby-frost-apple"
-  },
-  {
-    "slug": "sweet-tango-apple"
-  },
-  {
-    "slug": "kiku-apple"
-  },
-  {
-    "slug": "smitten-apple"
-  },
-  {
-    "slug": "sugarbee-apple"
-  },
-  {
-    "slug": "green-dragon-apple"
-  },
-  {
-    "slug": "cripps-pink-apple"
-  },
-  {
-    "slug": "autumn-glory-apple"
-  },
-  {
-    "slug": "red-delicious-apple"
-  },
-  {
-    "slug": "pazazz-apple"
-  },
-  {
-    "slug": "granny-smith-apple"
-  },
-  {
-    "slug": "braeburn-apple"
-  },
-  {
-    "slug": "evercrisp-apple"
-  },
-  {
-    "slug": "empire-apple"
-  },
-  {
-    "slug": "golden-delicious-apple"
-  },
-  {
-    "slug": "envy-apple"
-  },
-  {
-    "slug": "zestar-apple"
-  },
-  {
-    "slug": "pink-pearl-apple"
-  },
-  {
-    "slug": "fuji-apple"
-  },
-  {
-    "slug": "modi-apple"
-  },
-  {
-    "slug": "gala-apple"
-  },
-  {
-    "slug": "honeycrisp-apple"
-  }
-].map(({ slug }) => slug));
+// const selectedFruits = ref<string[]>([
+//   {
+//     "slug": "ruby-frost-apple"
+//   },
+//   {
+//     "slug": "sweet-tango-apple"
+//   },
+//   {
+//     "slug": "kiku-apple"
+//   },
+//   {
+//     "slug": "smitten-apple"
+//   },
+//   {
+//     "slug": "sugarbee-apple"
+//   },
+//   {
+//     "slug": "green-dragon-apple"
+//   },
+//   {
+//     "slug": "cripps-pink-apple"
+//   },
+//   {
+//     "slug": "autumn-glory-apple"
+//   },
+//   {
+//     "slug": "red-delicious-apple"
+//   },
+//   {
+//     "slug": "pazazz-apple"
+//   },
+//   {
+//     "slug": "granny-smith-apple"
+//   },
+//   {
+//     "slug": "braeburn-apple"
+//   },
+//   {
+//     "slug": "evercrisp-apple"
+//   },
+//   {
+//     "slug": "empire-apple"
+//   },
+//   {
+//     "slug": "golden-delicious-apple"
+//   },
+//   {
+//     "slug": "envy-apple"
+//   },
+//   {
+//     "slug": "zestar-apple"
+//   },
+//   {
+//     "slug": "pink-pearl-apple"
+//   },
+//   {
+//     "slug": "fuji-apple"
+//   },
+//   {
+//     "slug": "modi-apple"
+//   },
+//   {
+//     "slug": "gala-apple"
+//   },
+//   {
+//     "slug": "honeycrisp-apple"
+//   }
+// ].map(({ slug }) => slug));
+const selectedFruits = reactive<Set<string>>(new Set());
 
 const route = useRoute();
 const fruitTypeSlug = isString(route.params?.['fruit_type_slug']) ? route.params['fruit_type_slug'] : 'apple';
@@ -127,8 +138,10 @@ const req = await $apollo.query<FruitsNetworkQuery, FruitsNetworkQueryVariables>
   query: FruitsNetworkDocument,
   variables: {
     type: fruitTypeSlug,
-    take: 100,
-    slugs: selectedFruits.value,
+    take: (selectedFruits.size && selectedFruits.size > config.public.listFruitsLimit)
+      ? config.public.listFruitsLimit
+      : selectedFruits.size,
+    slugs: selectedFruits.size ? Array.from(selectedFruits) : null,
   }
 });
 
@@ -139,20 +152,12 @@ const openModal = () => {
   isModalOpen.value = true
 }
 
+const updateSelectedFruits = () => {};
+
 const closeModal = () => {
   isModalOpen.value = false
 }
 
-// const updateSelectedIds = (ids: number[]) => {
-//   selectedAppleIds.value = ids
-// }
-//
-// // Handle modal selection changes
-// const handleSelectionChange = (ids: number[]) => {
-//   selectedAppleIds.value = ids
-// }
-
-// Page head management
 useHead({
   title: 'Apple Network Graph',
   meta: [

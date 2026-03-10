@@ -1,7 +1,7 @@
 import pino, {type LoggerOptions} from 'pino';
 import type {H3Event} from "h3";
 
-export type ModuleName = 'api' | 'app' | 'cache' | 'gql' | 'supabase';
+export type ModuleName = 'app' | 'gql' | 'supabase';
 
 export const useLogger = (
   moduleName: ModuleName,
@@ -28,16 +28,4 @@ export const useLogger = (
     ]
   }))
   return logger.child({ module: moduleName });
-};
-
-export const useApiLogger = (
-  event: H3Event,
-  opts?: LoggerOptions,
-) => {
-  let msgPrefix = opts?.msgPrefix;
-  if (!opts?.msgPrefix) {
-    msgPrefix = `[api-logger:${event.context.requestId}] `;
-  }
-
-  return useLogger('api', {...opts, msgPrefix});
 };

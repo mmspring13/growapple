@@ -5,7 +5,6 @@ export default defineNuxtConfig({
   modules: ['@nuxt/image'],
   css: [
     '~/assets/css/main.css',
-    // 'bootstrap/dist/css/bootstrap.min.css',
   ],
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
@@ -27,8 +26,6 @@ export default defineNuxtConfig({
     head: {
       htmlAttrs: {
         lang: 'en',
-        'data-bs-theme': 'dark',
-        // data-bs-theme="dark"
       },
       viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
     },
@@ -37,9 +34,16 @@ export default defineNuxtConfig({
   runtimeConfig: {
     supabasePublishKey: process.env.SUPABASE_PUBLISH_KEY,
     supabaseSecretKey: process.env.SUPABASE_SECRET_KEY,
+    s3BucketName: process.env.S3_BUCKET_NAME,
     supabaseUrl: process.env.SUAPABASE_URL,
-    protectedRouteKey: process.env.PROTECTED_ROUTE_KEY,
-    protectedRouteHeader: process.env.PROTECTED_ROUTE_HEADER,
+    fruitDepthLimit: Number(
+      process.env["FRUIT_DEPTH_LIMIT"] || '8',
+    ),
+    public: {
+      listFruitsLimit: Number(
+        process.env["PUBLIC_LIST_FRUITS_LIMIT"] || '10',
+      ),
+    },
   },
   ssr: true,
   image: {

@@ -17,13 +17,13 @@ export type Scalars = {
 export type Fruit = {
   __typename?: 'Fruit';
   avatar?: Maybe<FruitAvatar>;
-  children?: Maybe<SubFruits>;
+  children: Array<Fruit>;
   description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   images?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   name?: Maybe<Scalars['String']['output']>;
   opening_year?: Maybe<Scalars['Int']['output']>;
-  parentage?: Maybe<SubFruits>;
+  parentage: Array<Fruit>;
   short_description?: Maybe<Scalars['String']['output']>;
   slug: Scalars['String']['output'];
   type: Scalars['String']['output'];
@@ -68,15 +68,9 @@ export type QueryFruitArgs = {
 
 
 export type QueryFruitsArgs = {
+  search?: InputMaybe<Scalars['String']['input']>;
   skip?: InputMaybe<Scalars['Int']['input']>;
   slugs?: InputMaybe<Array<Scalars['String']['input']>>;
   take?: InputMaybe<Scalars['Int']['input']>;
-  type: Scalars['String']['input'];
-};
-
-export type SubFruits = {
-  __typename?: 'SubFruits';
-  data: Array<Fruit>;
-  hasMore: Scalars['Boolean']['output'];
-  totalCount: Scalars['Int']['output'];
+  type?: InputMaybe<Scalars['String']['input']>;
 };

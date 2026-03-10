@@ -2,13 +2,13 @@ import {useLogger} from "#server/utils/logger";
 import { parseResolveInfo, simplifyParsedResolveInfoFragmentWithType } from "graphql-parse-resolve-info";
 import {useSupabase} from "#server/modules/supabase";
 
-export const log = useLogger('supabase');
+export const log = useLogger('gql');
 
 function buildSupabaseSelect(
   fields: any,
   excludeFields: string[] = [],
   requiredFields?: string[],
-): string {
+): string[] {
   const arrFields = Object.entries(fields)
     .filter(([name]) => !excludeFields.includes(name))
     .map(([name, value]: any) => {
@@ -18,9 +18,6 @@ function buildSupabaseSelect(
 
       if (childTypes && Object.keys(childTypes).length > 0) {
         let nested = buildSupabaseSelect(childTypes, excludeFields);
-        if (['parentage', 'children'].includes(name) && nested.startsWith('data(')) {
-          nested = nested.replace(/^data\(|\)$/g, '');
-        }
         return `${name}(${nested})`;
       }
 
@@ -33,34 +30,27 @@ function buildSupabaseSelect(
         }
       });
     }
-    return arrFields.join(",");
+    return arrFields;
 }
 
-export const getSelectFields = (
+export const getSelectedFields = (
   info: any,
-  targetTypeName: string,
   excludeFields: string[] = [],
-  requiredFields: string[] = []
-): string | null => {
+  requiredFields: string[] = ['id'],
+) => {
   const parsedInfo = parseResolveInfo(info);
-
-  if (!parsedInfo) return null;
-
   const { fields } = simplifyParsedResolveInfoFragmentWithType(
     parsedInfo,
     info.returnType
   );
-
-  let targetFields = fields;
-
-  if (fields["data"] && fields["data"].fieldsByTypeName[targetTypeName]) {
-    targetFields = fields["data"].fieldsByTypeName[targetTypeName];
-  } else if (parsedInfo.fieldsByTypeName[targetTypeName]) {
-    targetFields = parsedInfo.fieldsByTypeName[targetTypeName];
+  let arrFields = buildSupabaseSelect(fields, excludeFields, requiredFields);
+  if (arrFields[arrFields.length - 2]?.startsWith('data(')) {
+    const selectFields = [arrFields[arrFields.length - 1]];
+    selectFields.unshift(arrFields[arrFields.length - 2].replace(/^data\(|\)$/g, ''));
+    return selectFields.join(',');
   }
-  const select = buildSupabaseSelect(targetFields, excludeFields, requiredFields);
-  return select || null;
-};
+  return arrFields?.join(',');
+}
 
 export const fetchFromSupabase = async (
   from: string,

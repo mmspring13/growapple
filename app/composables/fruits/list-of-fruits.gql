@@ -1,5 +1,6 @@
-fragment SubItemListOfFruits on SubFruits {
-  totalCount
+fragment SubItemListOfFruits on Fruit {
+  id
+  slug
 }
 
 query ListOfFruits($type: String!, $skip: Int, $take: Int) {

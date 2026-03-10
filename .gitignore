@@ -22,3 +22,7 @@ logs
 .env
 .env.*
 !.env.example
+
+# codegen files
+app/**/*.generated.ts
+app/_codegen

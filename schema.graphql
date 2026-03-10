@@ -4,13 +4,13 @@ schema {
 
 type Fruit {
   avatar: FruitAvatar
-  children: SubFruits
+  children: [Fruit!]!
   description: String
   id: ID!
   images: [String]
   name: String
   opening_year: Int
-  parentage: SubFruits
+  parentage: [Fruit!]!
   short_description: String
   slug: String!
   type: String!
@@ -40,11 +40,12 @@ type Pagination {
 
 type Query {
   fruit(slug: String!): Fruit
-  fruits(skip: Int, slugs: [String!], take: Int, type: String!): Fruits
-}
-
-type SubFruits {
-  data: [Fruit!]!
-  hasMore: Boolean!
-  totalCount: Int!
+  fruits(
+    search: String
+    skip: Int
+    slugs: [String!]
+    take: Int
+    """API used 'apple' by default"""
+    type: String
+  ): Fruits
 }

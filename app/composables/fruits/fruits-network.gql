@@ -13,21 +13,17 @@ fragment NetworkFruit on Fruit {
   name
   slug
   parentage {
-    data {
-      ...SubItemNetworkFruit
-    }
+    ...SubItemNetworkFruit
   }
   children {
-    data {
-      ...SubItemNetworkFruit
-    }
+    ...SubItemNetworkFruit
   }
   avatar {
     ...AppFruitAvatar
   }
 }
 
-query FruitsNetwork($type: String!, $slugs: [String!], $take: Int) {
+query FruitsNetwork($type: String, $slugs: [String!], $take: Int) {
   fruits(type: $type, take: $take, slugs: $slugs) {
     totalCount
     data {

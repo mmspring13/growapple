@@ -67,7 +67,5 @@
 </template>
 
 <script lang="ts" setup>
-import { ArrowRight, ArrowLeft, NetworkIcon, LucideListTree } from 'lucide-vue-next';
-
-const { $apollo } = useNuxtApp();
+import { ArrowRight, NetworkIcon, LucideListTree } from 'lucide-vue-next';
 </script>

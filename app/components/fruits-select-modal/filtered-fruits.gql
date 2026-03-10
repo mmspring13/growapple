@@ -1,0 +1,16 @@
+query FilteredFruits($type: String, $take: Int, $skip: Int, $search: String) {
+  fruits(type: $type, take: $take, skip: $skip, search: $search) {
+    totalCount
+    pageInfo {
+      hasNextPage
+    }
+    data {
+      id
+      avatar {
+        ...AppFruitAvatar
+      }
+      name
+      slug
+    }
+  }
+}

@@ -37,22 +37,14 @@
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
               <div class="flex items-center">
-                <div class="flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center border border-stone-100 dark:border-stone-700" :style="{ backgroundColor: (apple.rest?.color || '#ccc') + '20' }">
-                  <a
-                    v-if="apple.images?.[0]"
-                    :href="apple.images?.[0]"
-                    :key="apple.images?.[0]"
-                    target="_blank"
-                    class="block border rounded-full relative overflow-hidden"
-                    style="width: 40px; aspect-ratio: 1"
-                  >
-                    <NuxtImg
-                      class="w-full h-full absolute img-fluid object-cover"
-                      :alt="`image of ${apple.name}`"
-                      :src="apple.images?.[0]"
-                      provider="baseProvider"
-                    />
-                  </a>
+                <div class="flex-shrink-0 block border relative overflow-hidden h-10 w-10 rounded-full flex items-center justify-center border-stone-100 dark:border-stone-700" :style="{ backgroundColor: (apple.rest?.color || '#ccc') + '20' }">
+                  <NuxtImg
+                    v-if="apple.avatar"
+                    class="w-full h-full absolute img-fluid object-cover"
+                    :alt="`image of ${apple.name}`"
+                    :src="apple.avatar.url"
+                    provider="baseProvider"
+                  />
                   <!--                  <div class="w-4 h-4 rounded-full" :style="{ backgroundColor: apple.rest?.color || '#ccc' }"></div>-->
                 </div>
                 <div class="ml-4">
@@ -211,7 +203,7 @@ const goToPage = async (page: number) => {
 
 // Navigation function
 const navigateToApple = (slug) => {
-  navigateTo(`/apple/${slug}`)
+  navigateTo(`/fruit/${slug}`)
 }
 </script>
 
