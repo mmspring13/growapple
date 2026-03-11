@@ -76,7 +76,6 @@ const loadFruits = async () => {
   isLoading.value = true;
   
   try {
-    console.log("Start request");
     const result = await $apollo.query<FilteredFruitsQuery, FilteredFruitsQueryVariables>({
       query: FilteredFruitsDocument,
       variables: {
@@ -87,7 +86,6 @@ const loadFruits = async () => {
       },
       fetchPolicy: 'network-only'
     });
-    console.log("finish request", result);
 
     const newFruits = result.data?.fruits?.data || [];
     hasNextPage.value = result.data?.fruits?.pageInfo?.hasNextPage || false;
@@ -141,7 +139,6 @@ watch(() => props.isOpen, async (open) => {
     hasNextPage.value = true;
     searchTerm.value = '';
     debouncedSearch.value = '';
-    console.log("loading fruits");
     await loadFruits();
     
     await nextTick();

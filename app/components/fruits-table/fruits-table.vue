@@ -4,19 +4,30 @@
     <div class="bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 shadow-sm overflow-hidden transition-colors duration-300">
       <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-stone-200 dark:divide-stone-800">
+          <colgroup>
+            <col style="width: 64px" />
+            <col style="width: 20%" />
+            <col style="width: auto" />
+            <col style="width: auto" />
+            <col style="width: 42%" />
+            <col style="width: auto" />
+          </colgroup>
           <thead class="bg-stone-50 dark:bg-stone-950">
           <tr>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-stone-500 dark:text-stone-400 uppercase tracking-wider font-mono">
+            <th scope="col" class="table-th">
               #ID
             </th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-stone-500 dark:text-stone-400 uppercase tracking-wider font-mono">
+            <th scope="col" class="table-th">
               Variety Name
             </th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-stone-500 dark:text-stone-400 uppercase tracking-wider font-mono">
+            <th scope="col" class="table-th">
               Year
             </th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-stone-500 dark:text-stone-400 uppercase tracking-wider font-mono">
+            <th scope="col" class="table-th">
               Family
+            </th>
+            <th scope="col" class="table-th">
+              Description
             </th>
             <th scope="col" class="relative px-6 py-3">
               <span class="sr-only">View</span>
@@ -57,12 +68,24 @@
             <td class="px-6 py-4 whitespace-nowrap">
               <div class="text-sm text-stone-900 dark:text-stone-300 font-mono">{{ apple.opening_year || "Unknown" }}</div>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-stone-500 dark:text-stone-400">
+            <td class="table-td-default">
+              <div class="flex flex-col items-start gap-y-1.5">
                 <span
-                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-300"
+                  class="family-label"
                 >
-                  {{ 10 }} Parents
+                  {{ apple.parentage?.length }} Parents
                 </span>
+              <span
+                class="family-label"
+              >
+                  {{ apple.children?.length }} Offsprings
+              </span>
+              </div>
+            </td>
+            <td class="table-td-default">
+              <div class="text-sm text-stone-900 dark:text-stone-300 font-mono whitespace-pre-wrap line-clamp-2 text-ellipsis overflow-hidden">
+                {{ apple.short_description }}
+              </div>
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
               <NuxtLink :to="`/fruit/${apple.slug}`" class="text-orange-600 dark:text-orange-400 hover:text-orange-900 dark:hover:text-orange-300 inline-flex items-center gap-1 opacity-20 group-hover:opacity-100 transition-opacity">
@@ -89,7 +112,7 @@
             <button
               @click="goToPage(currentPage - 1)"
               :disabled="currentPage === 0"
-              class="px-3 py-2 text-sm font-medium rounded-lg border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              class="pagination-cursor-btn"
             >
               Previous
             </button>
@@ -111,7 +134,7 @@
             <button
               @click="goToPage(currentPage + 1)"
               :disabled="!pageInfo.hasNextPage"
-              class="px-3 py-2 text-sm font-medium rounded-lg border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              class="pagination-cursor-btn"
             >
               Next
             </button>
@@ -208,5 +231,18 @@ const navigateToApple = (slug) => {
 </script>
 
 <style scoped>
-/* Any component-specific styles can go here */
+@reference "tailwindcss";
+
+.table-th {
+  @apply px-6 py-3 text-left text-xs font-medium text-stone-500 dark:text-stone-400 uppercase tracking-wider font-mono;
+}
+.table-td-default {
+  @apply px-6 py-4 whitespace-nowrap text-sm text-stone-500 dark:text-stone-400;
+}
+.pagination-cursor-btn {
+  @apply px-3 py-2 text-sm font-medium rounded-lg border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors;
+}
+.family-label {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-300;
+}
 </style>

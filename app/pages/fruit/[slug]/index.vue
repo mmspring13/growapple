@@ -26,8 +26,6 @@ if (!fruit) {
 
 const parents = fruit.parentage || [];
 const children = fruit.children || [];
-
-console.log(fruit)
 </script>
 
 <template>

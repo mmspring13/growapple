@@ -39,6 +39,9 @@ export default defineNuxtConfig({
     fruitDepthLimit: Number(
       process.env["FRUIT_DEPTH_LIMIT"] || '8',
     ),
+    concurrentImageDownloadLimit: Number(
+      process.env["CONCURRENT_IMAGE_DOWNLOAD_LIMIT"] || '6',
+    ),
     public: {
       listFruitsLimit: Number(
         process.env["PUBLIC_LIST_FRUITS_LIMIT"] || '10',

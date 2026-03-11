@@ -16,10 +16,10 @@
         <FilterIcon class="w-4 h-4" />
         Filter Varieties
         <span
-          v-if="fruits.length > 0"
+          v-if="selectedFruits.size > 0"
           class="ml-1 px-2 py-0.5 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 text-xs rounded-full"
         >
-          {{ fruits.length }}
+          {{ selectedFruits.size }}
         </span>
       </button>
     </div>
@@ -46,6 +46,7 @@ import {
   type FruitsNetworkQuery,
   type FruitsNetworkQueryVariables
 } from "~/composables/fruits/fruits-network.generated";
+import {ApolloClient} from "@apollo/client";
 
 const props = withDefaults(defineProps<{
   parentColor: string;
@@ -65,25 +66,35 @@ const fruitTypeSlug = isString(route.params?.['fruit_type_slug']) ? route.params
 
 const { $apollo } = useNuxtApp();
 
-const req = await $apollo.query<FruitsNetworkQuery, FruitsNetworkQueryVariables>({
-  query: FruitsNetworkDocument,
-  variables: {
-    type: fruitTypeSlug,
-    take: (!selectedFruits.size || selectedFruits.size > config.public.listFruitsLimit)
-      ? config.public.listFruitsLimit
-      : selectedFruits.size,
-    slugs: selectedFruits.size ? Array.from(selectedFruits) : null,
-  }
-});
+const request = ref<ApolloClient.QueryResult<FruitsNetworkQuery> | null>(null);
+const fruits = computed(() => request.value?.data?.fruits?.data || []);
 
-const fruits = req.data?.fruits?.data || [];
+const query = async () => {
+  request.value = await $apollo.query<FruitsNetworkQuery, FruitsNetworkQueryVariables>({
+    query: FruitsNetworkDocument,
+    variables: {
+      type: fruitTypeSlug,
+      take: (!selectedFruits.size || selectedFruits.size > config.public.listFruitsLimit)
+        ? config.public.listFruitsLimit
+        : selectedFruits.size,
+      slugs: selectedFruits.size ? Array.from(selectedFruits) : null,
+    }
+  });
+};
+await query();
 
 // Component methods
 const openModal = () => {
   isModalOpen.value = true
 }
 
-const updateSelectedFruits = () => {};
+const updateSelectedFruits = (fruits: string[]) => {
+  selectedFruits.clear();
+  fruits.forEach((fruit) => {
+    selectedFruits.add(fruit);
+  });
+  query();
+};
 
 const closeModal = () => {
   isModalOpen.value = false

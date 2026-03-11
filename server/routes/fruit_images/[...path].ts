@@ -1,18 +1,58 @@
-import {useSupabase} from "#server/modules/supabase";
+import { useSupabase } from "#server/modules/supabase";
+
+const { concurrentImageDownloadLimit } = useRuntimeConfig();
+let activeRequests = 0;
+const queue: { resolve: () => void }[] = [];
+
+function runNext() {
+  if (activeRequests >= concurrentImageDownloadLimit) return;
+  if (queue.length === 0) return;
+
+  const item = queue.shift();
+  if (!item) return;
+
+  activeRequests++;
+  item.resolve();
+}
+
+function acquire() {
+  return new Promise<void>((resolve) => {
+    queue.push({ resolve });
+    runNext();
+  });
+}
+
+function release() {
+  activeRequests--;
+  runNext();
+}
 
 export default defineEventHandler(async (event) => {
-  const config = useRuntimeConfig()
-  const path = getRouterParam(event, 'path');
+  const config = useRuntimeConfig();
+  const path = getRouterParam(event, "path");
   const supabase = useSupabase();
 
-  const { data, error } = await supabase.storage.from(config.s3BucketName).download(path);
+  await acquire();
 
-  if (error || !data) {
-    throw createError({ statusCode: 404, message: 'Image not found' });
+  try {
+    const { data, error } = await supabase.storage
+      .from(config.s3BucketName)
+      .download(path);
+
+    if (error || !data) {
+      throw createError({
+        statusCode: 404,
+        message: "Image not found",
+      });
+    }
+
+    setHeaders(event, {
+      "Cache-Control": "public, max-age=3600",
+      "Content-Type": data.type || "image/jpeg",
+    });
+
+    return data.stream();
+  } finally {
+    release();
   }
-
-  setResponseHeader(event, 'Content-Type', data.type);
-  setResponseHeader(event, 'Cache-Control', 'public, max-age=3600');
-
-  return data.stream()
-})
+});

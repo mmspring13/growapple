@@ -71,10 +71,10 @@ const currentYear = computed(() => new Date().getFullYear())
           <div class="flex items-center gap-4">
             <!-- Desktop Navigation -->
             <div class="hidden md:flex items-center gap-6">
-              <NuxtLink class="text-sm font-medium text-stone-600 dark:text-stone-400 hover:text-orange-600 dark:hover:text-orange-400 transition-colors px-3 py-2 rounded-md" aria-current="page" href="/">Home</NuxtLink>
-              <NuxtLink class="text-sm font-medium text-stone-600 dark:text-stone-400 hover:text-orange-600 dark:hover:text-orange-400 transition-colors px-3 py-2 rounded-md" href="/apple">Apples</NuxtLink>
-              <NuxtLink class="text-sm font-medium text-stone-600 dark:text-stone-400 hover:text-orange-600 dark:hover:text-orange-400 transition-colors px-3 py-2 rounded-md" href="/apple/tree">Genetic Tree</NuxtLink>
-              <NuxtLink target="_blank" class="text-sm font-medium text-stone-600 dark:text-stone-400 hover:text-orange-600 dark:hover:text-orange-400 transition-colors px-3 py-2 rounded-md" href="/api/fruit/gql">Graphql</NuxtLink>
+              <NuxtLink class="desktop-nav-link" aria-current="page" href="/">Home</NuxtLink>
+              <NuxtLink class="desktop-nav-link" href="/apple">Apples</NuxtLink>
+              <NuxtLink class="desktop-nav-link" href="/apple/tree">Genetic Tree</NuxtLink>
+              <NuxtLink target="_blank" class="desktop-nav-link" href="/api/fruit/gql">Graphql</NuxtLink>
             </div>
             <!-- Mobile Menu Button -->
             <button
@@ -97,10 +97,10 @@ const currentYear = computed(() => new Date().getFullYear())
         <!-- Mobile Navigation Menu -->
         <div v-if="mobileMenuOpen" class="md:hidden">
           <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            <NuxtLink class="block px-3 py-2 rounded-md text-base font-medium text-stone-700 dark:text-stone-300 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors" href="/" @click="closeMobileMenu">Home</NuxtLink>
-            <NuxtLink class="block px-3 py-2 rounded-md text-base font-medium text-stone-700 dark:text-stone-300 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors" href="/apple" @click="closeMobileMenu">Apples</NuxtLink>
-            <NuxtLink class="block px-3 py-2 rounded-md text-base font-medium text-stone-700 dark:text-stone-300 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors" href="/apple/tree" @click="closeMobileMenu">Genetic Tree</NuxtLink>
-            <NuxtLink target="_blank" class="block px-3 py-2 rounded-md text-base font-medium text-stone-700 dark:text-stone-300 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors" href="/api/fruit/gql" @click="closeMobileMenu">Graphql</NuxtLink>
+            <NuxtLink class="mobile-nav-link" href="/" @click="closeMobileMenu">Home</NuxtLink>
+            <NuxtLink class="mobile-nav-link" href="/apple" @click="closeMobileMenu">Apples</NuxtLink>
+            <NuxtLink class="mobile-nav-link" href="/apple/tree" @click="closeMobileMenu">Genetic Tree</NuxtLink>
+            <NuxtLink target="_blank" class="nav-link" href="/api/fruit/gql" @click="closeMobileMenu">Graphql</NuxtLink>
           </div>
         </div>
       </div>
@@ -108,10 +108,21 @@ const currentYear = computed(() => new Date().getFullYear())
     <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
       <slot />
     </main>
-    <footer class="mt-auto mb-0 border-t border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900 mt-8 sm:mt-12 transition-colors duration-300">
+    <footer class="mt-auto mb-0 border-t border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900 transition-colors duration-300">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 text-center text-stone-500 dark:text-stone-400 text-sm">
         <p>© {{ currentYear }} Apple Genealogy Project. Cultivating knowledge.</p>
       </div>
     </footer>
   </div>
 </template>
+
+<style>
+@reference "tailwindcss";
+
+.mobile-nav-link {
+  @apply block px-3 py-2 rounded-md text-base font-medium text-stone-700 dark:text-stone-300 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors;
+}
+.desktop-nav-link {
+  @apply text-sm font-medium text-stone-600 dark:text-stone-400 hover:text-orange-600 dark:hover:text-orange-400 transition-colors px-3 py-2 rounded-md;
+}
+</style>
