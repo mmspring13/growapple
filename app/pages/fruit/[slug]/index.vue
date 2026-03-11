@@ -24,8 +24,10 @@ if (!fruit) {
   });
 }
 
-const parents = fruit.parentage?.data || [];
-const children = fruit.children?.data || [];
+const parents = fruit.parentage || [];
+const children = fruit.children || [];
+
+console.log(fruit)
 </script>
 
 <template>
@@ -40,7 +42,7 @@ const children = fruit.children?.data || [];
         <div>
           <div class="flex items-center gap-3 mb-2">
             <span class="px-3 py-1 rounded-full text-xs font-mono bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300 uppercase tracking-wider">
-              {{ fruit.id }}
+              {{ fruit.slug }} ({{ fruit.id }})
             </span>
           </div>
           <h1 class="text-5xl font-serif font-medium text-stone-900 dark:text-stone-100 tracking-tight mb-4">
@@ -63,7 +65,7 @@ const children = fruit.children?.data || [];
             <MapPin class="w-5 h-5 text-stone-400 dark:text-stone-500" />
             <div>
               <div class="text-xs text-stone-500 dark:text-stone-400 uppercase tracking-wider font-bold">Type</div>
-              <div class="text-stone-900 dark:text-stone-200 capitalize">{{ fruit.type?.name || "Unknown" }}</div>
+              <div class="text-stone-900 dark:text-stone-200 capitalize">{{ fruit.type || "Unknown" }}</div>
             </div>
           </div>
         </div>
@@ -77,7 +79,8 @@ const children = fruit.children?.data || [];
             <ul v-if="parents.length > 0" class="space-y-2">
               <li v-for="p in parents" :key="p.id">
                 <NuxtLink :to="`/fruit/${p.slug}`" class="flex items-center gap-2 group">
-                  <div class="w-2 h-2 rounded-full bg-stone-300 dark:bg-stone-600 group-hover:bg-orange-500 transition-colors"></div>
+                  <NuxtImg provider="baseProvider" loading="lazy" v-if="p.avatar?.url" :src="p.avatar.url" :alt="`${p.name} avatar`" class="w-8 h-8 rounded-full object-cover border border-stone-200 dark:border-stone-700" />
+                  <div v-else class="w-2 h-2 rounded-full bg-stone-300 dark:bg-stone-600 group-hover:bg-orange-500 transition-colors"></div>
                   <span class="text-stone-700 dark:text-stone-300 font-medium group-hover:text-orange-700 dark:group-hover:text-orange-400 transition-colors underline decoration-stone-300 dark:decoration-stone-700 underline-offset-4 group-hover:decoration-orange-300 dark:group-hover:decoration-orange-500">
                     {{ p.name }}
                   </span>
@@ -94,7 +97,8 @@ const children = fruit.children?.data || [];
             <ul v-if="children.length > 0" class="space-y-2">
               <li v-for="c in children" :key="c.id">
                 <NuxtLink :to="`/fruit/${c.slug}`" class="flex items-center gap-2 group">
-                  <div class="w-2 h-2 rounded-full bg-stone-300 dark:bg-stone-600 group-hover:bg-orange-500 transition-colors"></div>
+                  <NuxtImg provider="baseProvider" loading="lazy" v-if="c.avatar?.url" :src="c.avatar.url" :alt="`${c.name} avatar`" class="w-8 h-8 rounded-full object-cover border border-stone-200 dark:border-stone-700" />
+                  <div v-else class="w-2 h-2 rounded-full bg-stone-300 dark:bg-stone-600 group-hover:bg-orange-500 transition-colors"></div>
                   <span class="text-stone-700 dark:text-stone-300 font-medium group-hover:text-orange-700 dark:group-hover:text-orange-400 transition-colors underline decoration-stone-300 dark:decoration-stone-700 underline-offset-4 group-hover:decoration-orange-300 dark:group-hover:decoration-orange-500">
                     {{ c.name }}
                   </span>
@@ -125,6 +129,21 @@ const children = fruit.children?.data || [];
         <p class="text-center text-xs text-stone-400 dark:text-stone-500 mt-2 font-mono">
           {{ fruit.images && fruit.images.length > 0 ? fruit.name : 'Representative Visualization' }}
         </p>
+      </div>
+    </div>
+
+    <!-- Images Gallery -->
+    <div v-if="fruit.images && fruit.images.length > 0" class="pt-8 border-t border-stone-200 dark:border-stone-800">
+      <h2 class="text-2xl font-serif font-medium text-stone-900 dark:text-stone-100 mb-6">Image Gallery</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div v-for="(image, index) in fruit.images" :key="index" class="aspect-square rounded-xl overflow-hidden border border-stone-100 dark:border-stone-800 shadow-sm">
+          <NuxtImg
+            class="w-full h-full object-cover"
+            :alt="`Image ${index + 1} of ${fruit.name}`"
+            :src="image"
+            provider="baseProvider"
+          />
+        </div>
       </div>
     </div>
 

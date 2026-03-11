@@ -68,4 +68,30 @@
 
 <script lang="ts" setup>
 import { ArrowRight, NetworkIcon, LucideListTree } from 'lucide-vue-next';
+
+useHead({
+  title: 'The Apple Genealogy Project | Explore Fruit Heritage',
+  meta: [
+    {
+      name: 'description',
+      content: 'Discover the fascinating world of fruit genealogy. Explore genetic relationships, historical origins, and complex lineages of apple varieties and other fruits through interactive visualizations and comprehensive databases.'
+    },
+    {
+      name: 'keywords',
+      content: 'apple genealogy, fruit heritage, pomology, apple varieties, fruit database, genetic relationships, fruit history'
+    },
+    {
+      property: 'og:title',
+      content: 'The Apple Genealogy Project | Explore Fruit Heritage'
+    },
+    {
+      property: 'og:description',
+      content: 'Discover the fascinating world of fruit genealogy. Explore genetic relationships, historical origins, and complex lineages of apple varieties and other fruits.'
+    },
+    {
+      property: 'og:type',
+      content: 'website'
+    }
+  ]
+});
 </script>

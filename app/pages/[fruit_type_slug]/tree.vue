@@ -56,80 +56,11 @@ const props = withDefaults(defineProps<{
 });
 
 const config = useRuntimeConfig();
+const route = useRoute();
 
 const isModalOpen = ref(false)
-
-// const selectedFruits = ref<string[]>([
-//   {
-//     "slug": "ruby-frost-apple"
-//   },
-//   {
-//     "slug": "sweet-tango-apple"
-//   },
-//   {
-//     "slug": "kiku-apple"
-//   },
-//   {
-//     "slug": "smitten-apple"
-//   },
-//   {
-//     "slug": "sugarbee-apple"
-//   },
-//   {
-//     "slug": "green-dragon-apple"
-//   },
-//   {
-//     "slug": "cripps-pink-apple"
-//   },
-//   {
-//     "slug": "autumn-glory-apple"
-//   },
-//   {
-//     "slug": "red-delicious-apple"
-//   },
-//   {
-//     "slug": "pazazz-apple"
-//   },
-//   {
-//     "slug": "granny-smith-apple"
-//   },
-//   {
-//     "slug": "braeburn-apple"
-//   },
-//   {
-//     "slug": "evercrisp-apple"
-//   },
-//   {
-//     "slug": "empire-apple"
-//   },
-//   {
-//     "slug": "golden-delicious-apple"
-//   },
-//   {
-//     "slug": "envy-apple"
-//   },
-//   {
-//     "slug": "zestar-apple"
-//   },
-//   {
-//     "slug": "pink-pearl-apple"
-//   },
-//   {
-//     "slug": "fuji-apple"
-//   },
-//   {
-//     "slug": "modi-apple"
-//   },
-//   {
-//     "slug": "gala-apple"
-//   },
-//   {
-//     "slug": "honeycrisp-apple"
-//   }
-// ].map(({ slug }) => slug));
 const selectedFruits = reactive<Set<string>>(new Set());
 
-const route = useRoute();
 const fruitTypeSlug = isString(route.params?.['fruit_type_slug']) ? route.params['fruit_type_slug'] : 'apple';
 
 const { $apollo } = useNuxtApp();
@@ -138,7 +69,7 @@ const req = await $apollo.query<FruitsNetworkQuery, FruitsNetworkQueryVariables>
   query: FruitsNetworkDocument,
   variables: {
     type: fruitTypeSlug,
-    take: (selectedFruits.size && selectedFruits.size > config.public.listFruitsLimit)
+    take: (!selectedFruits.size || selectedFruits.size > config.public.listFruitsLimit)
       ? config.public.listFruitsLimit
       : selectedFruits.size,
     slugs: selectedFruits.size ? Array.from(selectedFruits) : null,
@@ -159,11 +90,11 @@ const closeModal = () => {
 }
 
 useHead({
-  title: 'Apple Network Graph',
+  title: `Apples Network Graph`,
   meta: [
     {
       name: 'description',
-      content: 'Interactive network graph showing genetic relationships between apple varieties'
+      content: `Interactive network graph showing genetic relationships between apple varieties`
     }
   ]
 })

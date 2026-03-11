@@ -27,6 +27,7 @@ fragment AppFruit on Fruit {
   }
   images
   opening_year
+  type
 }
 
 query AppFruit($slug: String!) {

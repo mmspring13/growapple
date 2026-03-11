@@ -46,7 +46,7 @@ export const getSelectedFields = (
   let arrFields = buildSupabaseSelect(fields, excludeFields, requiredFields);
   if (arrFields[arrFields.length - 2]?.startsWith('data(')) {
     const selectFields = [arrFields[arrFields.length - 1]];
-    selectFields.unshift(arrFields[arrFields.length - 2].replace(/^data\(|\)$/g, ''));
+    selectFields.unshift(arrFields[arrFields.length - 2]?.replace(/^data\(|\)$/g, ''));
     return selectFields.join(',');
   }
   return arrFields?.join(',');
