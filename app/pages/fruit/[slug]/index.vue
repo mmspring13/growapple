@@ -68,7 +68,6 @@ const children = fruit.children || [];
           </div>
         </div>
 
-        <!-- Lineage Text Summary -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div class="bg-stone-50 dark:bg-stone-900 p-6 rounded-xl border border-stone-100 dark:border-stone-800">
             <h3 class="text-sm font-bold text-stone-900 dark:text-stone-100 uppercase tracking-wider mb-4 flex items-center gap-2">
