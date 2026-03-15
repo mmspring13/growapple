@@ -1,7 +1,7 @@
 import type { CodegenConfig } from '@graphql-codegen/cli'
 
 const config: CodegenConfig = {
-  schema: 'http://localhost:3000/api/fruit/gql',
+  schema: './schema.graphql',
   documents: ['app/**/*.gql'],
   ignoreNoDocuments: true,
   generates: {
@@ -20,12 +20,12 @@ const config: CodegenConfig = {
       },
       plugins: ['typescript-operations', 'typed-document-node'],
     },
-    './schema.graphql': {
-      plugins: ['schema-ast'],
-      config: {
-        includeDirectives: true,
-      }
-    }
+    // './schema.graphql': {
+    //   plugins: ['schema-ast'],
+    //   config: {
+    //     includeDirectives: true,
+    //   }
+    // }
   }
 }
 
