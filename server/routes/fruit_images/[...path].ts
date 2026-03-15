@@ -1,6 +1,7 @@
 import { useSupabase } from "#server/modules/supabase";
 
 const { concurrentImageDownloadLimit } = useRuntimeConfig();
+// const concurrentImageDownloadLimit = 2;
 let activeRequests = 0;
 const queue: { resolve: () => void }[] = [];
 
@@ -51,6 +52,7 @@ export default defineEventHandler(async (event) => {
       "Content-Type": data.type || "image/jpeg",
     });
 
+    // await new Promise(res => setTimeout(res, 10000, true));
     return data.stream();
   } finally {
     release();

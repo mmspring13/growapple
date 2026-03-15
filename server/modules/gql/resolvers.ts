@@ -1,16 +1,22 @@
 import {useSupabase} from "#server/modules/supabase";
 import {log, getSelectedFields, fetchFromSupabase} from "./utils";
 import {AppApolloDepthError, AppApolloErrorCodes} from './errors';
+import type {FieldNode} from "graphql/language";
+import type {Fruit} from "~/_codegen/types";
 
 const imgDir = 'fruit_images/';
 
-const getDepth = (node, currentDepth = 0) => {
+const getDepth = (node: FieldNode, currentDepth = 0): number => {
   if (!node.selectionSet) {
     return currentDepth;
   }
 
+  // @todo: expect code
   const depths = node.selectionSet.selections.map(selection => {
-    return getDepth(selection, currentDepth + 1);
+    if (selection.kind === 'Field') {
+      return getDepth(selection, currentDepth + 1);
+    }
+    return currentDepth + 1;
   });
 
   return Math.max(...depths, currentDepth);
@@ -18,7 +24,8 @@ const getDepth = (node, currentDepth = 0) => {
 
 export const resolvers = {
   Query: {
-    fruits: async (ctx, args, __, info) => {
+    // @ts-ignore
+    fruits: async (_, args, __, info) => {
       const sp = useSupabase();
       const { listFruitsLimit } = useRuntimeConfig();
       const { type = 'apple', skip = 0, slugs, search = '' } = args;
@@ -71,7 +78,8 @@ export const resolvers = {
         },
       };
     },
-    fruit: async (ctx, { slug }, __, info) => {
+    // @ts-ignore
+    fruit: async (_, { slug }, __, info) => {
       log.info({
         slug
       }, '🍏 resolve fruit query');
@@ -84,6 +92,7 @@ export const resolvers = {
     },
   },
   Fruit: {
+    // @ts-ignore
     children: (parent, _, ctx, info) => {
       const { fruitDepthLimit } = ctx.config;
       const depth = getDepth(info.fieldNodes[0]) - 2;
@@ -97,6 +106,7 @@ export const resolvers = {
       }
       return parent.children;
     },
+    // @ts-ignore
     parentage: (parent, _, ctx, info) => {
       const { fruitDepthLimit } = ctx.config;
       const depth = getDepth(info.fieldNodes[0]) - 2;
@@ -110,13 +120,14 @@ export const resolvers = {
       }
       return parent.parentage;
     },
-    avatar: async (parent) => {
+    // @ts-ignore
+    avatar: async (parent: Fruit, _, ctx, infp) => {
       log.info({
         images: parent.images,
         id: parent.id,
         slug: parent.slug,
       }, '🍎 resolve fruit avatar field');
-      const { s3BucketName } = useRuntimeConfig();
+      const { s3BucketName } = ctx.config;
       const sp = useSupabase();
       for (const avatarPath of [
         `${parent.id}/avatar.webp`,
@@ -130,16 +141,17 @@ export const resolvers = {
       }
       return null;
     },
-    images: async (parent) => {
+    // @ts-ignore
+    images: async (parent: Fruit, _, ctx) => {
       log.info({
         images: parent.images,
         id: parent.id,
         slug: parent.slug,
       }, '🌉 resolve fruit images field');
-      const { s3BucketName, fruitImagesLimit } = useRuntimeConfig();
+      const { s3BucketName, fruitImagesLimit } = ctx.config;
       const sp = useSupabase();
       const { data } = await sp.storage
-        .from(s3BucketName).list(`${parent.id}`, {
+        .from(s3BucketName).list(parent.id, {
           limit: fruitImagesLimit,
           offset: 0,
           sortBy: { column: 'name', order: 'asc' },

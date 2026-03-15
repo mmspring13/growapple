@@ -1,135 +1,131 @@
 <script setup lang="ts">
-import { ArrowLeft, Calendar, MapPin, GitBranch } from 'lucide-vue-next';
+import { ArrowLeft, Calendar, MapPin, GitBranch, ChevronUpIcon, ChevronDownIcon } from 'lucide-vue-next';
 import FruitGeneticTree from "~/components/fruit-genetic-tree/fruit-genetic-tree.vue";
 import { AppFruitDocument, type AppFruitQuery, type AppFruitQueryVariables } from "~/composables/fruit/fruit.generated";
 
 const route = useRoute();
 const fruitSlug = route.params.slug as string;
-
+const isDescriptionExpanded = ref(false);
 const { $apollo } = useNuxtApp();
 
-const query = await $apollo.query<AppFruitQuery, AppFruitQueryVariables>({
+// Data Fetching
+const { data } = await $apollo.query<AppFruitQuery, AppFruitQueryVariables>({
   query: AppFruitDocument,
-  variables: {
-    slug: fruitSlug
-  }
+  variables: { slug: fruitSlug }
 });
 
-const fruit = query?.data?.fruit;
-
+const fruit = data?.fruit;
 if (!fruit) {
-  throw createError({
-    statusCode: 404,
-    statusMessage: 'Fruit not found'
-  });
+  throw createError({ statusCode: 404, statusMessage: 'Fruit not found' });
 }
 
-const parents = fruit.parentage || [];
-const children = fruit.children || [];
+// Logic Computed/Helpers
+const relations = [
+  { label: 'Parentage', data: fruit.parentage || [], icon: GitBranch, flip: false, empty: 'Chance seedling (Unknown)' },
+  { label: 'Offspring', data: fruit.children || [], icon: GitBranch, flip: true, empty: 'No recorded major offspring' }
+];
+
+const seoDesc = `Learn about the ${fruit.name} apple variety, its origin, and genetic lineage.`;
+useSeoMeta({
+  title: fruit.name,
+  description: seoDesc,
+  ogDescription: fruit?.short_description || seoDesc,
+});
 </script>
 
 <template>
   <div class="space-y-8">
-    <NuxtLink to="/" class="inline-flex items-center text-sm text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 transition-colors">
+    <NuxtLink to="/" class="nav-back">
       <ArrowLeft class="w-4 h-4 mr-1" /> Back to Directory
     </NuxtLink>
 
-    <!-- Hero Section -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
       <div class="lg:col-span-2 space-y-6">
-        <div>
-          <div class="flex items-center gap-3 mb-2">
-            <span class="px-3 py-1 rounded-full text-xs font-mono bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300 uppercase tracking-wider">
-              {{ fruit.slug }} ({{ fruit.id }})
-            </span>
-          </div>
-          <h1 class="text-5xl font-serif font-medium text-stone-900 dark:text-stone-100 tracking-tight mb-4">
-            {{ fruit.name }}
-          </h1>
-          <p class="text-xl text-stone-600 dark:text-stone-300 leading-relaxed max-w-2xl">
-            {{ fruit.description }}
-          </p>
-        </div>
+        <header>
+          <span class="badge-slug">{{ fruit.slug }} ({{ fruit.id }})</span>
+          <h1 class="heading-xl">{{ fruit.name }}</h1>
+          <p class="text-lead">{{ fruit.description }}</p>
+        </header>
 
-        <div class="flex flex-wrap gap-6 py-6 border-y border-stone-200 dark:border-stone-800">
-          <div class="flex items-center gap-2">
-            <Calendar class="w-5 h-5 text-stone-400 dark:text-stone-500" />
+        <div class="stats-container">
+          <div class="stat-block">
+            <Calendar class="stat-icon" />
             <div>
-              <div class="text-xs text-stone-500 dark:text-stone-400 uppercase tracking-wider font-bold">Introduced</div>
-              <div class="font-mono text-stone-900 dark:text-stone-200">{{ fruit.opening_year || "Unknown" }}</div>
+              <div class="stat-label">Introduced</div>
+              <div class="stat-value font-mono">{{ fruit.opening_year || "Unknown" }}</div>
             </div>
           </div>
-          <div class="flex items-center gap-2">
-            <MapPin class="w-5 h-5 text-stone-400 dark:text-stone-500" />
+          <div class="stat-block">
+            <MapPin class="stat-icon" />
             <div>
-              <div class="text-xs text-stone-500 dark:text-stone-400 uppercase tracking-wider font-bold">Type</div>
-              <div class="text-stone-900 dark:text-stone-200 capitalize">{{ fruit.type || "Unknown" }}</div>
+              <div class="stat-label">Type</div>
+              <div class="stat-value capitalize">{{ fruit.type || "Unknown" }}</div>
             </div>
           </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div class="bg-stone-50 dark:bg-stone-900 p-6 rounded-xl border border-stone-100 dark:border-stone-800">
-            <h3 class="text-sm font-bold text-stone-900 dark:text-stone-100 uppercase tracking-wider mb-4 flex items-center gap-2">
-              <GitBranch class="w-4 h-4" /> Parentage
+          <div v-for="rel in relations" :key="rel.label" class="relation-card">
+            <h3 class="relation-title">
+              <component :is="rel.icon" :class="['w-4 h-4', rel.flip ? 'rotate-180' : '']" />
+              {{ rel.label }}
             </h3>
-            <ul v-if="parents.length > 0" class="space-y-2">
-              <li v-for="p in parents" :key="p.id">
-                <NuxtLink :to="`/fruit/${p.slug}`" class="flex items-center gap-2 group">
-                  <NuxtImg provider="baseProvider" loading="lazy" v-if="p.avatar?.url" :src="p.avatar.url" :alt="`${p.name} avatar`" class="w-8 h-8 rounded-full object-cover border border-stone-200 dark:border-stone-700" />
-                  <div v-else class="w-2 h-2 rounded-full bg-stone-300 dark:bg-stone-600 group-hover:bg-orange-500 transition-colors"></div>
-                  <span class="text-stone-700 dark:text-stone-300 font-medium group-hover:text-orange-700 dark:group-hover:text-orange-400 transition-colors underline decoration-stone-300 dark:decoration-stone-700 underline-offset-4 group-hover:decoration-orange-300 dark:group-hover:decoration-orange-500">
-                    {{ p.name }}
-                  </span>
-                </NuxtLink>
-              </li>
-            </ul>
-            <p v-else class="text-stone-500 dark:text-stone-500 italic text-sm">Chance seedling (Unknown parents)</p>
-          </div>
 
-          <div class="bg-stone-50 dark:bg-stone-900 p-6 rounded-xl border border-stone-100 dark:border-stone-800">
-            <h3 class="text-sm font-bold text-stone-900 dark:text-stone-100 uppercase tracking-wider mb-4 flex items-center gap-2">
-              <GitBranch class="w-4 h-4 rotate-180" /> Offspring
-            </h3>
-            <ul v-if="children.length > 0" class="space-y-2">
-              <li v-for="c in children" :key="c.id">
-                <NuxtLink :to="`/fruit/${c.slug}`" class="flex items-center gap-2 group">
-                  <NuxtImg provider="baseProvider" loading="lazy" v-if="c.avatar?.url" :src="c.avatar.url" :alt="`${c.name} avatar`" class="w-8 h-8 rounded-full object-cover border border-stone-200 dark:border-stone-700" />
-                  <div v-else class="w-2 h-2 rounded-full bg-stone-300 dark:bg-stone-600 group-hover:bg-orange-500 transition-colors"></div>
-                  <span class="text-stone-700 dark:text-stone-300 font-medium group-hover:text-orange-700 dark:group-hover:text-orange-400 transition-colors underline decoration-stone-300 dark:decoration-stone-700 underline-offset-4 group-hover:decoration-orange-300 dark:group-hover:decoration-orange-500">
-                    {{ c.name }}
-                  </span>
+            <ul v-if="rel.data.length > 0" class="space-y-2">
+              <li v-for="item in rel.data" :key="item.id">
+                <NuxtLink :to="`/fruit/${item.slug}`" class="link-node group">
+                  <NuxtImg
+                    v-if="item.avatar?.url"
+                    :src="item.avatar.url"
+                    class="node-avatar"
+                    provider="baseProvider"
+                  />
+                  <div v-else class="node-dot"></div>
+                  <span class="node-text">{{ item.name }}</span>
                 </NuxtLink>
               </li>
             </ul>
-            <p v-else class="text-stone-500 dark:text-stone-500 italic text-sm">No recorded major offspring</p>
+            <p v-else class="text-empty">{{ rel.empty }}</p>
           </div>
         </div>
       </div>
 
-      <!-- Sidebar / Visual -->
-      <div class="lg:col-span-1">
-        <div v-if="fruit.images && fruit.images.length > 0" class="aspect-square rounded-2xl bg-gradient-to-br from-stone-100 to-stone-200 dark:from-stone-800 dark:to-stone-900 flex items-center justify-center border border-stone-100 dark:border-stone-800 shadow-inner relative overflow-hidden">
+      <aside class="lg:col-span-1">
+        <div class="hero-image-container">
           <NuxtImg
-            class="w-full h-full object-cover rounded-2xl"
-            :alt="`Image of ${fruit.name}`"
-            :src="fruit.images[0]"
+            v-if="fruit.avatar"
+            loading="lazy"
+            placeholder
+            placeholder-class="app-img-shimmer"
+            class="w-full h-full object-cover"
+            :src="fruit.avatar.url"
             provider="baseProvider"
           />
-        </div>
-        <div v-else class="aspect-square rounded-2xl bg-gradient-to-br from-stone-100 to-stone-200 dark:from-stone-800 dark:to-stone-900 flex items-center justify-center border border-stone-100 dark:border-stone-800 shadow-inner relative overflow-hidden">
-          <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#444_1px,transparent_1px)] dark:bg-[radial-gradient(#888_1px,transparent_1px)] [background-size:16px_16px]"></div>
-          <div class="w-48 h-48 rounded-full shadow-2xl relative z-10 bg-gradient-to-br from-orange-400 to-orange-600">
-            <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-8 bg-stone-700 dark:bg-stone-900 rounded-full rotate-12"></div>
+          <div v-else class="placeholder-art">
+            <div class="art-apple"></div>
           </div>
         </div>
-        <p class="text-center text-xs text-stone-400 dark:text-stone-500 mt-2 font-mono">
-          {{ fruit.images && fruit.images.length > 0 ? fruit.name : 'Representative Visualization' }}
-        </p>
-      </div>
+      </aside>
     </div>
 
-    <!-- Images Gallery -->
+    <section class="section-divider" v-if="fruit.short_description || fruit.description">
+      <h2 class="heading-lg">About {{ fruit.name }}</h2>
+      <div v-if="fruit.short_description" class="prose-container">
+        <p class="text-lead">{{ fruit.short_description }}</p>
+
+        <Transition name="fade">
+          <div v-show="isDescriptionExpanded" class="pt-2">
+            <p class="text-lead">{{ fruit.description }}</p>
+          </div>
+        </Transition>
+
+        <button @click="isDescriptionExpanded = !isDescriptionExpanded" class="btn-toggle">
+          {{ isDescriptionExpanded ? 'Read Less' : 'Load More' }}
+          <component :is="isDescriptionExpanded ? ChevronUpIcon : ChevronDownIcon" class="w-4 h-4" />
+        </button>
+      </div>
+    </section>
+
     <div v-if="fruit.images && fruit.images.length > 0" class="pt-8 border-t border-stone-200 dark:border-stone-800">
       <h2 class="text-2xl font-serif font-medium text-stone-900 dark:text-stone-100 mb-6">Image Gallery</h2>
       <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -139,20 +135,120 @@ const children = fruit.children || [];
             :alt="`Image ${index + 1} of ${fruit.name}`"
             :src="image"
             provider="baseProvider"
+            loading="lazy"
+            placeholder
+            placeholder-class="app-img-shimmer"
           />
         </div>
       </div>
     </div>
 
-    <!-- Genetic Tree Visualization -->
-    <div class="pt-8 border-t border-stone-200 dark:border-stone-800">
-      <h2 class="text-2xl font-serif font-medium text-stone-900 dark:text-stone-100 mb-6">Genetic Tree Visualization</h2>
-      <p class="text-stone-500 dark:text-stone-400 mb-6 max-w-3xl">
-        Interactive visualization of {{ fruit.name }}'s immediate genetic network.
-        Nodes are clickable. Top level represents parents, middle is the current variety, bottom are children.
-      </p>
+    <section class="section-divider">
+      <h2 class="heading-lg">Genetic Tree Visualization</h2>
+      <p class="text-muted mb-6">Interactive visualization of immediate genetic network.</p>
       <fruit-genetic-tree :apple="fruit" />
-    </div>
+    </section>
   </div>
 </template>
 
+<style scoped>
+@reference "tailwindcss";
+
+/* Layout Components */
+.section-divider {
+  @apply pt-8 border-t border-stone-200 dark:border-stone-800;
+}
+
+.stats-container {
+  @apply flex flex-wrap gap-6 py-6 border-y border-stone-200 dark:border-stone-800;
+}
+
+.stat-block {
+  @apply flex items-center gap-2;
+}
+
+/* Typography */
+.heading-xl {
+  @apply text-5xl font-serif font-medium text-stone-900 dark:text-stone-100 tracking-tight mb-4;
+}
+
+.heading-lg {
+  @apply text-2xl font-serif font-medium text-stone-900 dark:text-stone-100 mb-4;
+}
+
+.text-lead {
+  @apply text-xl text-stone-600 dark:text-stone-300 leading-relaxed;
+}
+
+.text-muted {
+  @apply text-stone-500 dark:text-stone-400;
+}
+
+.badge-slug {
+  @apply inline-block px-3 py-1 mb-2 rounded-full text-xs font-mono bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300 uppercase tracking-wider;
+}
+
+.stat-label {
+  @apply text-xs text-stone-500 dark:text-stone-400 uppercase tracking-wider font-bold;
+}
+
+.stat-value {
+  @apply text-stone-900 dark:text-stone-200;
+}
+
+.stat-icon {
+  @apply w-5 h-5 text-stone-400 dark:text-stone-500;
+}
+
+/* Relation Cards */
+.relation-card {
+  @apply bg-stone-50 dark:bg-stone-900 p-6 rounded-xl border border-stone-100 dark:border-stone-800;
+}
+
+.relation-title {
+  @apply text-sm font-bold text-stone-900 dark:text-stone-100 uppercase tracking-wider mb-4 flex items-center gap-2;
+}
+
+.link-node {
+  @apply flex items-center gap-2 transition-colors;
+}
+
+.node-text {
+  @apply text-stone-700 dark:text-stone-300 font-medium underline decoration-stone-300 dark:decoration-stone-700 underline-offset-4 group-hover:text-orange-700 dark:group-hover:text-orange-400 group-hover:decoration-orange-300;
+}
+
+.node-avatar {
+  @apply w-8 h-8 rounded-full object-cover border border-stone-200 dark:border-stone-700;
+}
+
+.node-dot {
+  @apply w-2 h-2 rounded-full bg-stone-300 dark:bg-stone-600 group-hover:bg-orange-500;
+}
+
+.hero-image-container {
+  @apply aspect-square rounded-2xl bg-stone-100 dark:bg-stone-800 flex items-center justify-center border border-stone-100 dark:border-stone-800 shadow-inner overflow-hidden relative;
+}
+
+.placeholder-art {
+  @apply absolute inset-0 flex items-center justify-center opacity-10 bg-[radial-gradient(#444_1px,transparent_1px)] [background-size:16px_16px];
+}
+
+.art-apple {
+  @apply w-48 h-48 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 shadow-2xl;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+}
+
+.nav-back {
+  @apply inline-flex items-center text-sm text-stone-500 dark:text-stone-400 hover:text-stone-900 transition-colors;
+}
+
+.btn-toggle {
+  @apply mt-2 flex items-center gap-2 text-orange-600 dark:text-orange-400 hover:text-orange-700 font-medium transition-colors;
+}
+</style>

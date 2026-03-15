@@ -1,7 +1,10 @@
 ><!-- pages/apples.vue -->
 <template>
   <div class="space-y-8">
-    <div class="bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 shadow-sm overflow-hidden transition-colors duration-300">
+    <div
+      class="bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 shadow-sm overflow-hidden transition-colors duration-300"
+      :class="{ 'animate-pulse pointer-events-none': isLoading }"
+    >
       <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-stone-200 dark:divide-stone-800">
           <colgroup>
@@ -51,12 +54,14 @@
                 <div class="flex-shrink-0 block border relative overflow-hidden h-10 w-10 rounded-full flex items-center justify-center border-stone-100 dark:border-stone-700" :style="{ backgroundColor: (apple.rest?.color || '#ccc') + '20' }">
                   <NuxtImg
                     v-if="apple.avatar"
+                    loading="lazy"
+                    placeholder
+                    placeholder-class="app-img-shimmer"
                     class="w-full h-full absolute img-fluid object-cover"
                     :alt="`image of ${apple.name}`"
                     :src="apple.avatar.url"
                     provider="baseProvider"
                   />
-                  <!--                  <div class="w-4 h-4 rounded-full" :style="{ backgroundColor: apple.rest?.color || '#ccc' }"></div>-->
                 </div>
                 <div class="ml-4">
                   <div class="text-sm font-medium text-stone-900 dark:text-stone-100 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
@@ -156,26 +161,34 @@ import {
 
 const props = defineProps<{
   typeSlug: string;
+  searchTerm?: string;
 }>();
 
 const { $apollo } = useNuxtApp();
+const config = useRuntimeConfig();
 
 // Pagination state
-const currentPage = ref(0)
-const itemsPerPage = ref(10)
-const tableData = ref([])
-const pageInfo = ref(null)
-const totalCount = ref(0)
+const currentPage = ref(0);
+const itemsPerPage = ref(config.public.listFruitsLimit);
+const tableData = ref([]);
+const pageInfo = ref(null);
+const totalCount = ref(0);
+const isLoading = ref(true);
 
 // Fetch data function
 const fetchData = async () => {
+  isLoading.value = true;
+
   const query = await $apollo.query<ListOfFruitsQuery, ListOfFruitsQueryVariables>({
     query: ListOfFruitsDocument,
     variables: {
+      search: props.searchTerm,
       type: props.typeSlug,
       skip: currentPage.value * itemsPerPage.value,
       take: itemsPerPage.value
     }
+  }).finally(() => {
+    isLoading.value = false;
   });
   
   tableData.value = query?.data?.fruits?.data || [];
@@ -228,6 +241,11 @@ const goToPage = async (page: number) => {
 const navigateToApple = (slug) => {
   navigateTo(`/fruit/${slug}`)
 }
+
+watch(() => props.searchTerm, () => {
+  currentPage.value = 0;
+  fetchData();
+});
 </script>
 
 <style scoped>

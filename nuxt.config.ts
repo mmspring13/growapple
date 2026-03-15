@@ -8,17 +8,12 @@ export default defineNuxtConfig({
   ],
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
-  build: {
-    transpile: ['highcharts', 'highcharts-vue']
-  },
-  plugins: [
-    "~/plugins/highcharts",
-  ],
   vite: {
     optimizeDeps: {
       exclude: ['@graphql-typed-document-node/core'],
     },
     plugins: [
+      // @ts-ignore
       tailwindcss(),
     ],
   },
@@ -36,6 +31,9 @@ export default defineNuxtConfig({
     supabaseSecretKey: process.env.SUPABASE_SECRET_KEY,
     s3BucketName: process.env.S3_BUCKET_NAME,
     supabaseUrl: process.env.SUAPABASE_URL,
+    fruitImagesLimit: Number(
+      process.env["FRUIT_IMAGES_LIMIT"] || '8',
+    ),
     fruitDepthLimit: Number(
       process.env["FRUIT_DEPTH_LIMIT"] || '8',
     ),
@@ -46,6 +44,7 @@ export default defineNuxtConfig({
       listFruitsLimit: Number(
         process.env["PUBLIC_LIST_FRUITS_LIMIT"] || '10',
       ),
+      siteName: process.env["PUBLIC_SITE_NAME"] || 'UFO',
     },
   },
   ssr: true,

@@ -6,7 +6,6 @@ const operationsGenerator = createOperationsGenerator()
 export default defineProvider<{ baseURL?: string }>({
   getImage (src, { modifiers, baseURL }) {
     if (!baseURL) {
-      // also support runtime config
       baseURL = useRuntimeConfig().public.siteUrl as string
     }
 

@@ -83,7 +83,6 @@ const query = async () => {
 };
 await query();
 
-// Component methods
 const openModal = () => {
   isModalOpen.value = true
 }
@@ -100,15 +99,12 @@ const closeModal = () => {
   isModalOpen.value = false
 }
 
-useHead({
-  title: `Apples Network Graph`,
-  meta: [
-    {
-      name: 'description',
-      content: `Interactive network graph showing genetic relationships between apple varieties`
-    }
-  ]
-})
+const d = 'Interactive network graph showing genetic relationships between apple varieties'
+useSeoMeta({
+  title: 'Apples Network Graph',
+  description: d,
+  ogDescription: d,
+});
 </script>
 
 <style scoped>

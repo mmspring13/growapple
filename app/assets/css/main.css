@@ -4,6 +4,25 @@ html {
   background-color: var(--color-stone-900);
 }
 
+.app-img-shimmer {
+  background: var(--color-stone-800);
+  background-image: linear-gradient(
+    to right,
+    var(--color-stone-800) 0%,
+    var(--color-stone-600) 20%,
+    var(--color-stone-800) 40%,
+    var(--color-stone-800) 100%
+  );
+  background-repeat: no-repeat;
+  background-size: 200% 100%;
+  animation: app-img-shimmer-animation 1.5s infinite linear;
+}
+
+@keyframes app-img-shimmer-animation {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
 .page-enter-active,
 .page-leave-active {
   transition: all 0.24s;

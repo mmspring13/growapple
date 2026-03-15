@@ -3,8 +3,26 @@ fragment SubItemListOfFruits on Fruit {
   slug
 }
 
-query ListOfFruits($type: String!, $skip: Int, $take: Int) {
-  fruits(type: $type, skip: $skip, take: $take) {
+fragment FruitsListItem on Fruit {
+  id
+  slug
+  name
+  opening_year
+  images
+  short_description
+  avatar {
+    ...AppFruitAvatar
+  }
+  children {
+    ...SubItemListOfFruits
+  }
+  parentage {
+    ...SubItemListOfFruits
+  }
+}
+
+query ListOfFruits($type: String!, $skip: Int, $take: Int, $search: String) {
+  fruits(type: $type, skip: $skip, take: $take, search: $search) {
     totalCount
     pageInfo {
       skip
@@ -12,21 +30,7 @@ query ListOfFruits($type: String!, $skip: Int, $take: Int) {
       hasNextPage
     }
     data {
-      id
-      slug
-      name
-      opening_year
-      images
-      short_description
-      avatar {
-        ...AppFruitAvatar
-      }
-      children {
-        ...SubItemListOfFruits
-      }
-      parentage {
-        ...SubItemListOfFruits
-      }
+      ...FruitsListItem
     }
   }
 }

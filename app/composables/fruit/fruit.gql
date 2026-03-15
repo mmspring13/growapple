@@ -15,6 +15,7 @@ fragment AppFruit on Fruit {
   id
   slug
   description
+  short_description
   name
   avatar {
     ...AppFruitAvatar

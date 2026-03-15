@@ -9,7 +9,7 @@ import {AppApolloDepthError, AppApolloErrorCodes} from './errors';
 const apollo = new ApolloServer({
   typeDefs: schema,
   resolvers,
-  playground: true,
+  // playground: true,
   logger: log,
   formatError: (err) => {
     log.error({
@@ -43,6 +43,7 @@ const apollo = new ApolloServer({
     });
   },
 });
+
 export const apolloServerEventHandler = startServerAndCreateH3Handler(apollo, {
   context: async (event) => {
     const {
