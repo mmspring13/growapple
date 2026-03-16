@@ -24,10 +24,7 @@
       </button>
     </div>
 
-    <fruits-network-graph :fruits="fruits" />
-<!--    <fruits-network-graph-static :fruits="fruits" />-->
-
-<!--    <AppleNetworkGraph :selected-apple-ids="selectedAppleIds" />-->
+    <fruits-network-graph :class="{ 'animate-pulse': isLoading }" :fruits="fruits" />
 
     <fruits-select-modal
       :is-open="isModalOpen"
@@ -47,8 +44,14 @@ import {
   type FruitsNetworkQueryVariables
 } from "~/composables/fruits/fruits-network.generated";
 import {ApolloClient} from "@apollo/client";
+import {computed} from "vue";
+import {
+  ListOfFruitsDocument,
+  type ListOfFruitsQuery,
+  type ListOfFruitsQueryVariables
+} from "~/composables/fruits/list-of-fruits.generated";
 
-const props = withDefaults(defineProps<{
+withDefaults(defineProps<{
   parentColor: string;
   childrenColor: string;
 }>(), {
@@ -66,22 +69,36 @@ const fruitTypeSlug = isString(route.params?.['fruit_type_slug']) ? route.params
 
 const { $apollo } = useNuxtApp();
 
-const request = ref<ApolloClient.QueryResult<FruitsNetworkQuery> | null>(null);
-const fruits = computed(() => request.value?.data?.fruits?.data || []);
-
-const query = async () => {
-  request.value = await $apollo.query<FruitsNetworkQuery, FruitsNetworkQueryVariables>({
-    query: FruitsNetworkDocument,
+const take = computed(() => {
+  return (!selectedFruits.size || selectedFruits.size > config.public.listFruitsLimit)
+    ? config.public.listFruitsLimit
+    : selectedFruits.size;
+});
+const queryKey = computed(() => {
+  const slugsKey = Array.from(selectedFruits).join('__')
+  return `fruits-tree-${fruitTypeSlug}-${slugsKey}`
+});
+const { data, pending: isLoading } = await useAsyncData(
+  queryKey.value,
+  () => $apollo.query<FruitsNetworkQuery, FruitsNetworkQueryVariables>({
+    query: ListOfFruitsDocument,
     variables: {
+      take: take.value,
       type: fruitTypeSlug,
-      take: (!selectedFruits.size || selectedFruits.size > config.public.listFruitsLimit)
-        ? config.public.listFruitsLimit
-        : selectedFruits.size,
       slugs: selectedFruits.size ? Array.from(selectedFruits) : null,
     }
-  });
-};
-await query();
+  }),
+  {
+    lazy: true,
+    watch: [queryKey],
+    transform: (result) => {
+      if (!result.error) {
+        return result.data?.fruits?.data;
+      }
+    }
+  }
+);
+const fruits = computed(() => data.value);
 
 const openModal = () => {
   isModalOpen.value = true
@@ -92,7 +109,6 @@ const updateSelectedFruits = (fruits: string[]) => {
   fruits.forEach((fruit) => {
     selectedFruits.add(fruit);
   });
-  query();
 };
 
 const closeModal = () => {
@@ -106,7 +122,3 @@ useSeoMeta({
   ogDescription: d,
 });
 </script>
-
-<style scoped>
-/* Add any page-specific styles here if needed */
-</style>

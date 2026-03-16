@@ -1,10 +1,10 @@
 <!-- components/AppleNetworkGraph.vue -->
 <template>
-  <div class="w-full space-y-4">
-    <div ref="containerRef" class="w-full rounded-xl overflow-hidden shadow-xl border border-stone-800 bg-[#222]">
+  <div class="w-full space-y-4 ">
+    <div ref="containerRef" class="w-full rounded-xl overflow-hidden shadow-xl border border-stone-800 bg-zinc-900">
       <svg ref="svgRef" class="block w-full"></svg>
     </div>
-    <div class="rounded-xl shadow-xl border border-stone-800 bg-[#222] p-4">
+    <div class="rounded-xl shadow-xl border border-stone-800 p-4 bg-zinc-800">
       <h3 class="text-white font-bold text-lg mb-3">Legend</h3>
       <div class="mt-2 mb-4 flex flex-row gap-1.5">
         <label for="parentColor">
@@ -39,6 +39,7 @@
 <script setup lang="ts">
 import * as d3 from 'd3'
 import getRandomTailwindColor from "#shared/helpers/get-random-tailwind-color";
+import type {Fruit} from "~~/composables/fruits/types";
 
 interface D3Node {
   id: number
@@ -57,7 +58,7 @@ interface D3Link {
 }
 
 const props = withDefaults(defineProps<{
-  fruits: Array<any>
+  fruits: Array<Fruit>
 }>(), {
   fruits: () => [],
 })
@@ -232,7 +233,7 @@ const renderGraph = () => {
   const svg = d3.select(svgRef.value)
     .attr('width', width)
     .attr('height', height)
-    .style('background-color', '#222')
+    .style('background-color', 'var(--color-zinc-900)');
 
   // Add a group for the graph
   const g = svg.append('g')

@@ -25,9 +25,9 @@ const getDepth = (node: FieldNode, currentDepth = 0): number => {
 export const resolvers = {
   Query: {
     // @ts-ignore
-    fruits: async (_, args, __, info) => {
+    fruits: async (_, args, ctx, info) => {
       const sp = useSupabase();
-      const { listFruitsLimit } = useRuntimeConfig();
+      const { listFruitsLimit } = ctx;
       const { type = 'apple', skip = 0, slugs, search = '' } = args;
       let { take } = args;
 

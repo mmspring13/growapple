@@ -54,8 +54,14 @@ export const apolloServerEventHandler = startServerAndCreateH3Handler(apollo, {
       s3BucketName,
       fruitImagesLimit,
       fruitDepthLimit,
+      public: { listFruitsLimit },
     } = useRuntimeConfig();
-    const config = { s3BucketName, fruitImagesLimit, fruitDepthLimit };
+    const config = {
+      s3BucketName,
+      fruitImagesLimit,
+      fruitDepthLimit,
+      listFruitsLimit,
+    };
 
     log.info({
       method: event.event.method,

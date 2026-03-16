@@ -2,34 +2,43 @@
 import { ArrowLeft, Calendar, MapPin, GitBranch, ChevronUpIcon, ChevronDownIcon } from 'lucide-vue-next';
 import FruitGeneticTree from "~/components/fruit-genetic-tree/fruit-genetic-tree.vue";
 import { AppFruitDocument, type AppFruitQuery, type AppFruitQueryVariables } from "~/composables/fruit/fruit.generated";
+import FruitSlugLoader from "~/components/fruit-slug/fruit-slug-loader.vue";
 
 const route = useRoute();
 const fruitSlug = route.params.slug as string;
-const isDescriptionExpanded = ref(false);
+// const isDescriptionExpanded = ref(false);
+
 const { $apollo } = useNuxtApp();
 
 // Data Fetching
-const { data } = await $apollo.query<AppFruitQuery, AppFruitQueryVariables>({
-  query: AppFruitDocument,
-  variables: { slug: fruitSlug }
-});
+const queryKey = computed(() => `fruit-${fruitSlug}`)
+const { data: fruit, pending: isLoading } = await useAsyncData(
+  queryKey.value,
+  () => $apollo.query<AppFruitQuery, AppFruitQueryVariables>({
+    query: AppFruitDocument,
+    variables: {slug: fruitSlug}
+  }),
+  {
+    watch: [queryKey],
+    lazy: true,
+    transform: (result) => {
+      if (!result.error) {
+        return result.data?.fruit;
+      }
+    }
+  }
+);
 
-const fruit = data?.fruit;
-if (!fruit) {
-  throw createError({ statusCode: 404, statusMessage: 'Fruit not found' });
-}
+const relations = computed(() => [
+  { label: 'Parentage', data: fruit.value?.parentage || [], icon: GitBranch, flip: false, empty: 'Chance seedling (Unknown)' },
+  { label: 'Offspring', data: fruit.value?.children || [], icon: GitBranch, flip: true, empty: 'No recorded major offspring' }
+]);
 
-// Logic Computed/Helpers
-const relations = [
-  { label: 'Parentage', data: fruit.parentage || [], icon: GitBranch, flip: false, empty: 'Chance seedling (Unknown)' },
-  { label: 'Offspring', data: fruit.children || [], icon: GitBranch, flip: true, empty: 'No recorded major offspring' }
-];
-
-const seoDesc = `Learn about the ${fruit.name} apple variety, its origin, and genetic lineage.`;
+const seoDesc = `Learn about the ${fruit.value?.name} apple variety, its origin, and genetic lineage.`;
 useSeoMeta({
-  title: fruit.name,
+  title: fruit.value?.name,
   description: seoDesc,
-  ogDescription: fruit?.short_description || seoDesc,
+  ogDescription: fruit.value?.short_description || seoDesc,
 });
 </script>
 
@@ -39,115 +48,125 @@ useSeoMeta({
       <ArrowLeft class="w-4 h-4 mr-1" /> Back to Directory
     </NuxtLink>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-      <div class="lg:col-span-2 space-y-6">
-        <header>
-          <span class="badge-slug">{{ fruit.slug }} ({{ fruit.id }})</span>
-          <h1 class="heading-xl">{{ fruit.name }}</h1>
-          <p class="text-lead">{{ fruit.description }}</p>
-        </header>
-
-        <div class="stats-container">
-          <div class="stat-block">
-            <Calendar class="stat-icon" />
-            <div>
-              <div class="stat-label">Introduced</div>
-              <div class="stat-value font-mono">{{ fruit.opening_year || "Unknown" }}</div>
-            </div>
-          </div>
-          <div class="stat-block">
-            <MapPin class="stat-icon" />
-            <div>
-              <div class="stat-label">Type</div>
-              <div class="stat-value capitalize">{{ fruit.type || "Unknown" }}</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div v-for="rel in relations" :key="rel.label" class="relation-card">
-            <h3 class="relation-title">
-              <component :is="rel.icon" :class="['w-4 h-4', rel.flip ? 'rotate-180' : '']" />
-              {{ rel.label }}
-            </h3>
-
-            <ul v-if="rel.data.length > 0" class="space-y-2">
-              <li v-for="item in rel.data" :key="item.id">
-                <NuxtLink :to="`/fruit/${item.slug}`" class="link-node group">
-                  <NuxtImg
-                    v-if="item.avatar?.url"
-                    :src="item.avatar.url"
-                    class="node-avatar"
-                    provider="baseProvider"
-                  />
-                  <div v-else class="node-dot"></div>
-                  <span class="node-text">{{ item.name }}</span>
-                </NuxtLink>
-              </li>
-            </ul>
-            <p v-else class="text-empty">{{ rel.empty }}</p>
-          </div>
-        </div>
+    <Transition name="fade" mode="out-in">
+      <div v-if="!fruit" key="loading">
+        <fruit-slug-loader />
       </div>
+      <div v-else>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+          <div class="lg:col-span-2 space-y-6">
+            <header>
+              <span class="badge-slug">{{ fruit.slug }} ({{ fruit.id }})</span>
+              <h1 class="heading-xl">{{ fruit.name }}</h1>
+              <p class="text-lead">{{ fruit.short_description }}</p>
+            </header>
 
-      <aside class="lg:col-span-1">
-        <div class="hero-image-container">
-          <NuxtImg
-            v-if="fruit.avatar"
-            loading="lazy"
-            placeholder
-            placeholder-class="app-img-shimmer"
-            class="w-full h-full object-cover"
-            :src="fruit.avatar.url"
-            provider="baseProvider"
-          />
-          <div v-else class="placeholder-art">
-            <div class="art-apple"></div>
+            <div class="stats-container">
+              <div class="stat-block">
+                <Calendar class="stat-icon" />
+                <div>
+                  <div class="stat-label">Introduced</div>
+                  <div class="stat-value font-mono">{{ fruit.opening_year || "Unknown" }}</div>
+                </div>
+              </div>
+              <div class="stat-block">
+                <MapPin class="stat-icon" />
+                <div>
+                  <div class="stat-label">Type</div>
+                  <div class="stat-value capitalize">{{ fruit.type || "Unknown" }}</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:mb-4">
+              <div v-for="rel in relations" :key="rel.label" class="relation-card">
+                <h3 class="relation-title">
+                  <component :is="rel.icon" :class="['w-4 h-4', rel.flip ? 'rotate-180' : '']" />
+                  {{ rel.label }}
+                </h3>
+
+                <ul v-if="rel.data.length > 0" class="space-y-2">
+                  <li v-for="item in rel.data" :key="item.id">
+                    <NuxtLink :to="`/fruit/${item.slug}`" class="link-node group">
+                      <NuxtImg
+                        v-if="item.avatar?.url"
+                        :src="item.avatar.url"
+                        class="node-avatar"
+                        provider="baseProvider"
+                      />
+                      <div v-else class="node-dot"></div>
+                      <span class="node-text">{{ item.name }}</span>
+                    </NuxtLink>
+                  </li>
+                </ul>
+                <p v-else class="text-empty">{{ rel.empty }}</p>
+              </div>
+            </div>
           </div>
+
+          <aside class="lg:col-span-1">
+            <div class="hero-image-container">
+              <NuxtImg
+                v-if="fruit.avatar"
+                loading="lazy"
+                placeholder
+                placeholder-class="app-img-shimmer"
+                class="w-full h-full object-cover"
+                :src="fruit.avatar.url"
+                provider="baseProvider"
+              />
+              <div v-else class="placeholder-art">
+                <div class="art-apple"></div>
+              </div>
+            </div>
+          </aside>
         </div>
-      </aside>
-    </div>
 
-    <section class="section-divider" v-if="fruit.short_description || fruit.description">
-      <h2 class="heading-lg">About {{ fruit.name }}</h2>
-      <div v-if="fruit.short_description" class="prose-container">
-        <p class="text-lead">{{ fruit.short_description }}</p>
-
-        <Transition name="fade">
-          <div v-show="isDescriptionExpanded" class="pt-2">
+        <section class="section-divider" v-if="fruit.short_description || fruit.description">
+          <h2 class="heading-lg">About {{ fruit.name }}</h2>
+          <div class="py-4">
             <p class="text-lead">{{ fruit.description }}</p>
           </div>
-        </Transition>
+          <!--          <div v-if="fruit.short_description" class="prose-container">-->
+<!--            <p class="text-lead">{{ fruit.short_description }}</p>-->
 
-        <button @click="isDescriptionExpanded = !isDescriptionExpanded" class="btn-toggle">
-          {{ isDescriptionExpanded ? 'Read Less' : 'Load More' }}
-          <component :is="isDescriptionExpanded ? ChevronUpIcon : ChevronDownIcon" class="w-4 h-4" />
-        </button>
-      </div>
-    </section>
+<!--            <Transition name="fade">-->
+<!--              <div v-show="isDescriptionExpanded" class="pt-2">-->
+<!--                <p class="text-lead">{{ fruit.description }}</p>-->
+<!--              </div>-->
+<!--            </Transition>-->
 
-    <div v-if="fruit.images && fruit.images.length > 0" class="pt-8 border-t border-stone-200 dark:border-stone-800">
-      <h2 class="text-2xl font-serif font-medium text-stone-900 dark:text-stone-100 mb-6">Image Gallery</h2>
-      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        <div v-for="(image, index) in fruit.images" :key="index" class="aspect-square rounded-xl overflow-hidden border border-stone-100 dark:border-stone-800 shadow-sm">
-          <NuxtImg
-            class="w-full h-full object-cover"
-            :alt="`Image ${index + 1} of ${fruit.name}`"
-            :src="image"
-            provider="baseProvider"
-            loading="lazy"
-            placeholder
-            placeholder-class="app-img-shimmer"
-          />
+<!--            <button @click="isDescriptionExpanded = !isDescriptionExpanded" class="btn-toggle">-->
+<!--              {{ isDescriptionExpanded ? 'Read Less' : 'Load More' }}-->
+<!--              <component :is="isDescriptionExpanded ? ChevronUpIcon : ChevronDownIcon" class="w-4 h-4" />-->
+<!--            </button>-->
+<!--          </div>-->
+        </section>
+
+        <div v-if="fruit.images && fruit.images.length > 0" class="pt-8 border-t border-stone-200 dark:border-stone-800">
+          <h2 class="text-2xl font-serif font-medium text-stone-900 dark:text-stone-100 mb-6">Image Gallery</h2>
+          <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div v-for="(image, index) in fruit.images" :key="index" class="aspect-square rounded-xl overflow-hidden border border-stone-100 dark:border-stone-800 shadow-sm">
+              <NuxtImg
+                class="w-full h-full object-cover"
+                :alt="`Image ${index + 1} of ${fruit.name}`"
+                :src="image"
+                provider="baseProvider"
+                loading="lazy"
+                placeholder
+                placeholder-class="app-img-shimmer"
+              />
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
 
-    <section class="section-divider">
-      <h2 class="heading-lg">Genetic Tree Visualization</h2>
-      <p class="text-muted mb-6">Interactive visualization of immediate genetic network.</p>
-      <fruit-genetic-tree :apple="fruit" />
-    </section>
+        <section class="section-divider">
+          <h2 class="heading-lg">Genetic Tree Visualization</h2>
+          <p class="text-muted mb-6">Interactive visualization of immediate genetic network.</p>
+          <fruit-genetic-tree :apple="fruit" />
+        </section>
+      </div>
+    </Transition>
   </div>
 </template>
 
@@ -173,11 +192,11 @@ useSeoMeta({
 }
 
 .heading-lg {
-  @apply text-2xl font-serif font-medium text-stone-900 dark:text-stone-100 mb-4;
+  @apply text-2xl font-serif font-medium text-stone-900 dark:text-stone-100;
 }
 
 .text-lead {
-  @apply text-xl text-stone-600 dark:text-stone-300 leading-relaxed;
+  @apply text-base text-stone-600 dark:text-stone-300 leading-relaxed;
 }
 
 .text-muted {
