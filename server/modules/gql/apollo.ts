@@ -10,6 +10,7 @@ import {AppApolloDepthError, AppApolloErrorCodes} from './errors';
 const apollo = new ApolloServer({
   typeDefs: schema,
   resolvers,
+  introspection: true,
   // @ts-ignore
   playground: true,
   logger: log,
