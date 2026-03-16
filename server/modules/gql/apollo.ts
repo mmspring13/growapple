@@ -1,4 +1,5 @@
 import {ApolloServer} from "@apollo/server";
+// import { ApolloServerPluginLandingPageDisabled } from '@apollo/server/plugin/disabled';
 import {startServerAndCreateH3Handler} from "@as-integrations/h3";
 import { log } from "./utils";
 import { schema } from "./schema";
@@ -9,8 +10,10 @@ import {AppApolloDepthError, AppApolloErrorCodes} from './errors';
 const apollo = new ApolloServer({
   typeDefs: schema,
   resolvers,
-  // playground: true,
+  // @ts-ignore
+  playground: true,
   logger: log,
+  // plugins: [ApolloServerPluginLandingPageDisabled()],
   formatError: (err) => {
     log.error({
       message: err.message,
