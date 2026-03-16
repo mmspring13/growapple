@@ -1,5 +1,4 @@
 import pino, {type LoggerOptions} from 'pino';
-import {useRuntimeConfig} from "nuxt/app";
 
 export type ModuleName = 'app' | 'gql' | 'supabase';
 
@@ -7,10 +6,8 @@ export const useLogger = (
   moduleName: ModuleName,
   opts?: LoggerOptions,
 ) => {
-  const config = useRuntimeConfig();
-
   const transport = () => {
-    if (config.public.isDev) {
+    if (process.env.NODE_ENV === 'development') {
       return pino.transport({
         targets: [
           {
