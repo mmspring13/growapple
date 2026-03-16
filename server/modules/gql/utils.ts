@@ -1,6 +1,6 @@
 import {useLogger} from "#server/utils/logger";
 import { parseResolveInfo, simplifyParsedResolveInfoFragmentWithType } from "graphql-parse-resolve-info";
-import {useSupabase} from "#server/modules/supabase";
+// import {useSupabase} from "#server/modules/supabase";
 
 export const log = useLogger('gql');
 

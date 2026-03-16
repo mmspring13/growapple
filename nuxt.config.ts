@@ -45,6 +45,7 @@ export default defineNuxtConfig({
         process.env["PUBLIC_LIST_FRUITS_LIMIT"] || '10',
       ),
       siteName: process.env["PUBLIC_SITE_NAME"] || 'UFO',
+      isDev: process.env['NODE_ENV'] === 'development',
     },
   },
   ssr: true,
