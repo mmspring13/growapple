@@ -1,35 +1,37 @@
-<!-- components/AppleNetworkGraph.vue -->
 <template>
-  <div class="w-full space-y-4 ">
+  <div class="w-full space-y-4">
     <div ref="containerRef" class="w-full rounded-xl overflow-hidden shadow-xl border border-stone-800 bg-zinc-900">
-      <svg ref="svgRef" class="block w-full"></svg>
+      <svg ref="svgRef" class="block w-full" style="height: 600px;"></svg>
     </div>
+
     <div class="rounded-xl shadow-xl border border-stone-800 p-4 bg-zinc-800">
       <h3 class="text-white font-bold text-lg mb-3">Legend</h3>
-      <div class="mt-2 mb-4 flex flex-row gap-1.5">
-        <label for="parentColor">
-          <input type="color" v-model="parentColor" id="parentColor" />
-          Parent color
+
+      <div class="mt-2 mb-4 flex flex-row gap-6 items-center">
+        <label class="text-stone-300 text-sm flex items-center gap-2 cursor-pointer hover:text-white transition-colors">
+          <input type="color" v-model="parentColor" class="w-5 h-5 bg-transparent border-none cursor-pointer" />
+          Parent Connection
         </label>
-        <label for="childrenColor">
-          <input type="color" v-model="childrenColor" id="childrenColor" />
-          Children color
+        <label class="text-stone-300 text-sm flex items-center gap-2 cursor-pointer hover:text-white transition-colors">
+          <input type="color" v-model="childrenColor" class="w-5 h-5 bg-transparent border-none cursor-pointer" />
+          Children Connection
         </label>
       </div>
+
       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
         <div
           v-for="fruit in sortedFruits"
           :key="fruit.id"
-          class="flex items-center gap-2 p-2 rounded hover:bg-stone-700/50 transition-colors cursor-pointer"
+          class="flex items-center gap-2 p-2 rounded hover:bg-stone-700/50 transition-colors cursor-pointer group"
           @click="handleLegendClick(fruit)"
-          @mouseenter="handleLegendHover(fruit.id)"
-          @mouseleave="handleLegendHover(null)"
+          @mouseenter="hoveredFruitId = fruit.id"
+          @mouseleave="hoveredFruitId = null"
         >
           <div
-            class="w-4 h-4 rounded-full border border-white shrink-0"
-            :style="{ backgroundColor: colorMap.get(fruit.id)|| '#cccccc' }"
+            class="w-3 h-3 rounded-full border border-white/20 shrink-0 group-hover:scale-110 transition-transform"
+            :style="{ backgroundColor: colorMap.get(fruit.id) || '#cccccc' }"
           ></div>
-          <span class="text-white text-sm truncate" :title="fruit.name">{{ fruit.name }}</span>
+          <span class="text-white text-xs truncate" :title="fruit.name">{{ fruit.name }}</span>
         </div>
       </div>
     </div>
@@ -39,345 +41,239 @@
 <script setup lang="ts">
 import * as d3 from 'd3'
 import getRandomTailwindColor from "#shared/helpers/get-random-tailwind-color";
-import type {Fruit} from "~~/composables/fruits/types";
+import type { Fruit } from "~~/composables/fruits/types";
 
-interface D3Node {
-  id: number
-  name: string
-  slug: string
-  color: string
-  x?: number | null
-  y?: number | null
-  fx?: number | null
-  fy?: number | null
+interface D3Node extends d3.SimulationNodeDatum {
+  id: number;
+  name: string;
+  slug: string;
+  color: string;
 }
 
-interface D3Link {
-  source: number | D3Node
-  target: number | D3Node
+interface D3Link extends d3.SimulationLinkDatum<D3Node> {
+  source: any;
+  target: any;
 }
 
-const props = withDefaults(defineProps<{
-  fruits: Array<Fruit>
-}>(), {
-  fruits: () => [],
-})
+const props = withDefaults(defineProps<{ fruits: Array<Fruit> }>(), { fruits: () => [] });
+const router = useRouter();
 
-const router = useRouter()
-const svgRef = ref<SVGSVGElement | null>(null)
-const containerRef = ref<HTMLDivElement | null>(null)
-const simulation = ref<d3.Simulation<D3Node, D3Link> | null>(null)
-const hoveredFruitId = ref<number | null>(null)
+const svgRef = ref<SVGSVGElement | null>(null);
+const containerRef = ref<HTMLDivElement | null>(null);
+const hoveredFruitId = ref<number | null>(null);
+
+const nodes = ref<D3Node[]>([]);
+const links = ref<D3Link[]>([]);
+let simulation: d3.Simulation<D3Node, D3Link> | null = null;
+let resizeObserver: ResizeObserver | null = null;
 
 const parentColor = ref('#DB5461');
 const childrenColor = ref('#31AFD4');
-
 const colorMap = ref<Map<string, string>>(new Map());
-watch(() => props.fruits, () => {
-  props.fruits.forEach((fruit) => {
-    colorMap.value.set(fruit.id, getRandomTailwindColor());
+
+// 1. Color and Data Management
+watch(() => props.fruits, (newFruits) => {
+  newFruits.forEach(f => {
+    if (!colorMap.value.has(f.id)) colorMap.value.set(f.id, getRandomTailwindColor());
   });
+  updateGraphData();
 }, { immediate: true });
 
-watch(
-  [() => props.fruits, colorMap],
-  () => {
-    if (svgRef.value && containerRef.value) {
-      renderGraph()
-    }
-  }
-)
+watch(hoveredFruitId, (id) => highlightNodes(id));
 
-watch(hoveredFruitId, (newId) => {
-  highlightNodeFromLegend(newId)
-})
+const sortedFruits = computed(() => [...props.fruits].sort((a, b) => a.name.localeCompare(b.name)));
 
+// 2. Core Graph Logic
+function updateGraphData() {
+  const width = containerRef.value?.clientWidth || 0;
+  const height = 600;
 
-onMounted(() => {
-  renderGraph();
-  window.addEventListener('resize', handleResize);
-})
+  // If container isn't ready yet, don't position nodes at 0
+  if (width === 0) return;
 
-onUnmounted(() => {
-  window.removeEventListener('resize', handleResize)
-  if (simulation.value) {
-    simulation.value.stop()
-  }
-})
+  const existingNodes = new Map(nodes.value.map(d => [d.id, d]));
 
-const handleResize = () => {
-  if (svgRef.value && containerRef.value) {
-    renderGraph()
-  }
-}
+  nodes.value = props.fruits.map(f => {
+    const old = existingNodes.get(f.id);
+    return {
+      ...f,
+      color: colorMap.value.get(f.id) || '#ccc',
+      // Ensure we don't start at 0 if we can help it
+      x: old?.x ?? (width / 2 + (Math.random() - 0.5) * 100),
+      y: old?.y ?? (height / 2 + (Math.random() - 0.5) * 100),
+      vx: old?.vx ?? 0,
+      vy: old?.vy ?? 0
+    };
+  });
 
-const sortedFruits = computed(() => {
-  return [...props.fruits].sort((a, b) => a.name.localeCompare(b.name))
-})
-
-const handleLegendClick = (fruit: any) => {
-  router.push(`/fruit/${fruit.slug}`)
-}
-
-const handleLegendHover = (fruitId: number | null) => {
-  hoveredFruitId.value = fruitId
-}
-
-const highlightNodeFromLegend = (fruitId: number | null) => {
-  if (!svgRef.value) return
-
-  const svg = d3.select(svgRef.value)
-  const nodes = svg.selectAll('g g g')
-  const links = svg.selectAll('g g line')
-
-  if (fruitId === null) {
-    // Reset all nodes and links
-    nodes.select('circle')
-      .attr('r', 20)
-      .attr('stroke-width', 1.5)
-      .attr('fill', (d: any) => d.color)
-    
-    nodes.select('text')
-      .style('font-size', '12px')
-    
-    links
-      .attr('stroke', '#e6e6e6')
-      .attr('stroke-width', 1)
-      .attr('stroke-opacity', 0.6)
-  } else {
-    // Dim all nodes first
-    nodes.select('circle')
-      .attr('r', 20)
-      .attr('stroke-width', 1.5)
-      .attr('fill', (d: any) => d.id === fruitId ? d.color : d.color + '40')
-    
-    nodes.select('text')
-      .style('font-size', (d: any) => d.id === fruitId ? '14px' : '12px')
-      .style('font-weight', (d: any) => '100')
-    
-    // Highlight the selected node
-    nodes.filter((d: any) => d.id === fruitId)
-      .select('circle')
-      .attr('r', 25)
-      .attr('stroke-width', 3)
-      .attr('fill', (d: any) => d.color)
-    
-    // Highlight related links
-    links.each(function(l: any) {
-      const sel = d3.select(this)
-      const sourceId = typeof l.source === 'object' ? l.source.id : l.source
-      const targetId = typeof l.target === 'object' ? l.target.id : l.target
-      
-      if (sourceId === fruitId || targetId === fruitId) {
-        sel.attr('stroke', targetId === fruitId ? parentColor.value : childrenColor.value)
-          .attr('stroke-width', 3)
-          .attr('stroke-opacity', 1)
-        
-        // Highlight connected nodes
-        const connectedId = sourceId === fruitId ? targetId : sourceId
-        nodes.filter((n: any) => n.id === connectedId)
-          .select('circle')
-          .attr('fill', (d: any) => d.color)
-      } else {
-        sel.attr('stroke', '#e6e6e6')
-          .attr('stroke-width', 1)
-          .attr('stroke-opacity', 0.2)
+  const newLinks: D3Link[] = [];
+  props.fruits.forEach(fruit => {
+    fruit.parentage.forEach(p => {
+      if (props.fruits.some(a => a.id === p.id)) {
+        newLinks.push({ source: p.id, target: fruit.id });
       }
-    })
+    });
+  });
+  links.value = newLinks;
+
+  if (simulation) {
+    simulation.nodes(nodes.value);
+    (simulation.force('link') as d3.ForceLink<D3Node, D3Link>).links(links.value);
+    simulation.alpha(0.3).restart();
   }
+
+  renderElements();
 }
 
-const renderGraph = () => {
-  if (!svgRef.value || !containerRef.value) return
+function renderElements() {
+  if (!svgRef.value || !containerRef.value) return;
+  const width = containerRef.value.clientWidth;
+  const height = 600;
+  const radius = 20;
 
-  const width = containerRef.value.clientWidth
-  const height = 800
+  if (width === 0) return; // Guard against hidden container
 
-  // Clear previous SVG content
-  d3.select(svgRef.value).selectAll('*').remove();
+  const svg = d3.select(svgRef.value).attr('width', width).attr('height', height);
 
-  const filteredApples = props.fruits;
+  if (svg.select('.main-g').empty()) {
+    const main = svg.append('g').attr('class', 'main-g');
+    main.append('g').attr('class', 'links-layer');
+    main.append('g').attr('class', 'nodes-layer');
+  }
 
-  // Prepare Nodes
-  const nodes: D3Node[] = filteredApples.map(a => ({
-    id: a.id,
-    name: a.name,
-    slug: a.slug,
-    color: colorMap.value.get(a.id) || '#cccccc',
-    x: width / 2, // Initial positions
-    y: height / 2,
-    fx: null,
-    fy: null
-  }))
-
-  // Prepare Links
-  const links: D3Link[] = []
-  filteredApples.forEach(apple => {
-    apple.parentage.forEach(p => {
-      // Ensure parent exists in the FILTERED dataset
-      if (filteredApples.find(a => a.id === p.id)) {
-        links.push({ source: p.id, target: apple.id })
-      }
-    })
-  })
-
-  // Setup Simulation
-  simulation.value = d3.forceSimulation<D3Node>(nodes)
-    .force('link', d3.forceLink<D3Node, D3Link>(links)
-      .id(d => d.id)
-      .distance(120))
-    .force('charge', d3.forceManyBody().strength(-500))
-    .force('center', d3.forceCenter(width / 2, height / 2))
-    .force('collide', d3.forceCollide().radius(30).strength(0.7))
-
-  const svg = d3.select(svgRef.value)
-    .attr('width', width)
-    .attr('height', height)
-    .style('background-color', 'var(--color-zinc-900)');
-
-  // Add a group for the graph
-  const g = svg.append('g')
-
-  // Draw Links
-  const link = g.append('g')
-    .attr('stroke', '#e6e6e6')
-    .attr('stroke-opacity', 0.6)
-    .selectAll('line')
-    .data(links)
+  const link = svg.select('.links-layer')
+    .selectAll<SVGLineElement, D3Link>('line')
+    .data(links.value, (d: any) => `${d.source.id || d.source}-${d.target.id || d.target}`)
     .join('line')
-    .attr('stroke-width', 1)
-
-  // Draw Nodes
-  const node = g.append('g')
-    .attr('stroke', '#fff')
+    .attr('stroke', '#444')
     .attr('stroke-width', 1.5)
-    .selectAll('g')
-    .data(nodes)
-    .join('g')
-    .style('cursor', 'pointer')
+    .attr('stroke-opacity', 0.4);
+
+  const node = svg.select('.nodes-layer')
+    .selectAll<SVGGElement, D3Node>('.node-group')
+    .data(nodes.value, d => d.id)
+    .join(
+      enter => {
+        const g = enter.append('g').attr('class', 'node-group').style('cursor', 'grab');
+        g.append('circle').attr('r', radius).attr('stroke', '#18181b').attr('stroke-width', 2);
+        g.append('text').attr('dx', 25).attr('dy', 5).attr('fill', '#e5e7eb').style('font-size', '12px').style('pointer-events', 'none');
+        return g;
+      }
+    )
+    .on('mouseenter', (e, d) => hoveredFruitId.value = d.id)
+    .on('mouseleave', () => hoveredFruitId.value = null)
+    .on('click', (e, d) => router.push(`/fruit/${d.slug}`))
     .call(d3.drag<SVGGElement, D3Node>()
       .on('start', dragstarted)
       .on('drag', dragged)
-      .on('end', dragended))
+      .on('end', dragended));
 
-  // Node Circles
-  node.append('circle')
-    .attr('r', 20)
-    .attr('fill', d => d.color)
+  node.select('circle').attr('fill', d => d.color);
+  node.select('text').text(d => d.name);
 
-  // Node Labels
-  node.append('text')
-    .attr('x', 25)
-    .attr('y', 5)
-    .text(d => d.name)
-    .style('font-size', '14px')
-    .style('font-weight', '100')
-    .style('fill', '#fff')
-    .style('pointer-events', 'none')
-    .style('text-shadow', '1px 1px 2px #000')
+  if (!simulation) {
+    simulation = d3.forceSimulation<D3Node>(nodes.value)
+      .force('link', d3.forceLink<D3Node, D3Link>(links.value).id(d => d.id).distance(120))
+      .force('charge', d3.forceManyBody().strength(-500))
+      .force('collide', d3.forceCollide().radius(radius + 20))
+      .on('tick', () => {
+        // Updated clamping logic to use current container width
+        const currentWidth = containerRef.value?.clientWidth || width;
+        nodes.value.forEach(d => {
+          d.x = Math.max(radius, Math.min(currentWidth - radius, d.x!));
+          d.y = Math.max(radius, Math.min(height - radius, d.y!));
+        });
 
-  // Interactions
-  node.on('mouseover', function(event, d) {
-    const activeNodeId = d.id
-
-    // Highlight links
-    link.each(function(l) {
-      const sel = d3.select(this)
-
-      // Convert source/target to node IDs for comparison
-      const sourceId = typeof l.source === 'object' ? l.source.id : l.source
-      const targetId = typeof l.target === 'object' ? l.target.id : l.target
-
-      // 1. Identify Children (where source is current node)
-      if (sourceId === activeNodeId) {
-        sel.attr('stroke', childrenColor.value)
-          .attr('stroke-width', 4)
-          .attr('stroke-opacity', 1)
-
-        // Highlight child node (target)
-        node.filter(n => n.id === targetId)
-          .select('circle')
-          .attr('fill', childrenColor.value)
-      }
-
-      // 2. Identify Parent (where target is current node)
-      if (targetId === activeNodeId) {
-        sel.attr('stroke', parentColor.value)
-          .attr('stroke-width', 4)
-          .attr('stroke-opacity', 1)
-
-        // Highlight parent node (source)
-        node.filter(n => n.id === sourceId)
-          .select('circle')
-          .attr('fill', parentColor.value)
-      }
-    })
-  })
-    .on('mouseout', function() {
-      // Reset links
-      link
-        .attr('stroke', '#e6e6e6')
-        .attr('stroke-width', 1)
-        .attr('stroke-opacity', 0.6)
-
-      // Reset nodes
-      node.select('circle')
-        .attr('fill', d => d.color)
-    })
-    .on('click', (event, d) => {
-      router.push(`/fruit/${d.slug}`)
-    })
-
-  // Simulation Tick
-  simulation.value.on('tick', () => {
-    // Clamp nodes within the SVG bounds
-    const radius = 20
-    nodes.forEach(d => {
-      d.x = Math.max(radius, Math.min(width - radius, d.x || 0))
-      d.y = Math.max(radius, Math.min(height - radius, d.y || 0))
-    })
-
-    link
-      .attr('x1', d => {
-        const source = typeof d.source === 'object' ? d.source : nodes.find(n => n.id === d.source)
-        return source?.x || 0
-      })
-      .attr('y1', d => {
-        const source = typeof d.source === 'object' ? d.source : nodes.find(n => n.id === d.source)
-        return source?.y || 0
-      })
-      .attr('x2', d => {
-        const target = typeof d.target === 'object' ? d.target : nodes.find(n => n.id === d.target)
-        return target?.x || 0
-      })
-      .attr('y2', d => {
-        const target = typeof d.target === 'object' ? d.target : nodes.find(n => n.id === d.target)
-        return target?.y || 0
-      })
-
-    node.attr('transform', d => `translate(${d.x || 0},${d.y || 0})`)
-  })
-
-  // Drag functions
-  function dragstarted(event: d3.D3DragEvent<SVGGElement, D3Node, D3Node>) {
-    if (!event.active && simulation.value) {
-      simulation.value.alphaTarget(0.1).restart()
-    }
-    event.subject.fx = event.subject.x
-    event.subject.fy = event.subject.y
+        link.attr('x1', d => d.source.x).attr('y1', d => d.source.y)
+          .attr('x2', d => d.target.x).attr('y2', d => d.target.y);
+        node.attr('transform', d => `translate(${d.x},${d.y})`);
+      });
   }
 
-  function dragged(event: d3.D3DragEvent<SVGGElement, D3Node, D3Node>) {
-    event.subject.fx = event.x
-    event.subject.fy = event.y
-  }
-
-  function dragended(event: d3.D3DragEvent<SVGGElement, D3Node, D3Node>) {
-    if (!event.active && simulation.value) {
-      simulation.value.alphaTarget(0)
-    }
-    event.subject.fx = null
-    event.subject.fy = null
-  }
+  simulation.force('center', d3.forceCenter(width / 2, height / 2));
+  simulation.alpha(0.5).restart();
 }
+
+// 3. Highlight & Interactivity
+function highlightNodes(activeId: number | null) {
+  const svg = d3.select(svgRef.value);
+  if (!svg.node()) return;
+
+  const nodesLayer = svg.selectAll('.node-group');
+  const linksLayer = svg.selectAll('line');
+
+  if (!activeId) {
+    nodesLayer.style('opacity', 1).select('circle').attr('r', 20);
+    linksLayer.attr('stroke', '#444').attr('stroke-opacity', 0.4).attr('stroke-width', 1.5);
+    return;
+  }
+
+  const relatives = new Set<number>([activeId]);
+  linksLayer.each((l: any) => {
+    if (l.source.id === activeId || l.target.id === activeId) {
+      relatives.add(l.source.id);
+      relatives.add(l.target.id);
+    }
+  });
+
+  nodesLayer.style('opacity', (d: any) => relatives.has(d.id) ? 1 : 0.1);
+  linksLayer.each(function(l: any) {
+    const isParent = l.target.id === activeId;
+    const isChild = l.source.id === activeId;
+    d3.select(this)
+      .attr('stroke', isParent ? parentColor.value : (isChild ? childrenColor.value : '#444'))
+      .attr('stroke-opacity', (isParent || isChild) ? 1 : 0.05)
+      .attr('stroke-width', (isParent || isChild) ? 3 : 1);
+  });
+}
+
+// 4. Lifecycle & Resize
+onMounted(async () => {
+  // Wait for Nuxt/Vue to finish layout
+  await nextTick();
+
+  // Use ResizeObserver for the most reliable dimension tracking
+  resizeObserver = new ResizeObserver(() => {
+    if (containerRef.value?.clientWidth) {
+      updateGraphData();
+    }
+  });
+
+  if (containerRef.value) {
+    resizeObserver.observe(containerRef.value);
+  }
+
+  updateGraphData();
+});
+
+onUnmounted(() => {
+  if (resizeObserver) resizeObserver.disconnect();
+  if (simulation) simulation.stop();
+});
+
+// Drag handlers
+function dragstarted(event: any) {
+  if (!event.active) simulation?.alphaTarget(0.2).restart();
+  event.subject.fx = event.subject.x;
+  event.subject.fy = event.subject.y;
+}
+function dragged(event: any) {
+  event.subject.fx = event.x;
+  event.subject.fy = event.y;
+}
+function dragended(event: any) {
+  if (!event.active) simulation?.alphaTarget(0);
+  event.subject.fx = null;
+  event.subject.fy = null;
+}
+
+const handleLegendClick = (fruit: any) => router.push(`/fruit/${fruit.slug}`);
 </script>
+
+<style scoped>
+.node-group text {
+  text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+  font-weight: 400;
+  transition: font-size 0.2s;
+}
+</style>

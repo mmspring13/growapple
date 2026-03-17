@@ -24,7 +24,10 @@
       </button>
     </div>
 
-    <fruits-network-graph :class="{ 'animate-pulse': isLoading }" :fruits="fruits" />
+    <Transition>
+      <div v-if="isLoading" class="animate-pulse" />
+      <fruits-network-graph v-else :fruits="fruits" />
+    </Transition>
 
     <fruits-select-modal
       :is-open="isModalOpen"
