@@ -25,7 +25,7 @@
     </div>
 
     <Transition>
-      <div v-if="isLoading" class="animate-pulse" />
+      <div v-if="isLoading" class="animate-pulse w-full h-72" />
       <fruits-network-graph v-else :fruits="fruits" />
     </Transition>
 
@@ -83,14 +83,16 @@ const queryKey = computed(() => {
 });
 const { data, pending: isLoading } = await useAsyncData(
   queryKey.value,
-  () => $apollo.query<FruitsNetworkQuery, FruitsNetworkQueryVariables>({
-    query: ListOfFruitsDocument,
-    variables: {
-      take: take.value,
-      type: fruitTypeSlug,
-      slugs: selectedFruits.size ? Array.from(selectedFruits) : null,
-    }
-  }),
+  () => {
+    return $apollo.query<FruitsNetworkQuery, FruitsNetworkQueryVariables>({
+      query: FruitsNetworkDocument,
+      variables: {
+        take: take.value,
+        type: fruitTypeSlug,
+        slugs: selectedFruits.size ? Array.from(selectedFruits) : null,
+      }
+    })
+  },
   {
     lazy: true,
     watch: [queryKey],
