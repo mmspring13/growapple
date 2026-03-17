@@ -21,9 +21,9 @@ useSeoMeta({
 <template>
   <div>
     <div class="mt-2 mb-3 items-end flex justify-between flex-wrap">
-      <h2 class="pr-4 flex text-2xl font-serif">All Apples</h2>
+      <h2 class="pr-6 flex text-2xl font-serif">All Apples</h2>
 
-      <div class="flex-1 max-w-96 min-w-52">
+      <div class="flex-1 max-w-96 min-w-3xs">
         <label for="search" class="block mb-2.5 text-sm font-medium text-heading">Search by name</label>
         <div class="relative">
           <input type="text" id="search" placeholder="cripps pink" class="bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full px-3 py-2.5 shadow-xs placeholder:text-body" v-model="searchText" />
@@ -37,6 +37,3 @@ useSeoMeta({
     </div>
   </div>
 </template>
-
-<style scoped>
-</style>

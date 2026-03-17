@@ -1,4 +1,5 @@
 import {ApolloServer} from "@apollo/server";
+// import { ApolloServerPluginLandingPageDisabled } from '@apollo/server/plugin/disabled';
 import {startServerAndCreateH3Handler} from "@as-integrations/h3";
 import { log } from "./utils";
 import { schema } from "./schema";
@@ -9,8 +10,11 @@ import {AppApolloDepthError, AppApolloErrorCodes} from './errors';
 const apollo = new ApolloServer({
   typeDefs: schema,
   resolvers,
-  // playground: true,
+  introspection: true,
+  // @ts-ignore
+  playground: true,
   logger: log,
+  // plugins: [ApolloServerPluginLandingPageDisabled()],
   formatError: (err) => {
     log.error({
       message: err.message,
@@ -50,8 +54,14 @@ export const apolloServerEventHandler = startServerAndCreateH3Handler(apollo, {
       s3BucketName,
       fruitImagesLimit,
       fruitDepthLimit,
+      public: { listFruitsLimit },
     } = useRuntimeConfig();
-    const config = { s3BucketName, fruitImagesLimit, fruitDepthLimit };
+    const config = {
+      s3BucketName,
+      fruitImagesLimit,
+      fruitDepthLimit,
+      listFruitsLimit,
+    };
 
     log.info({
       method: event.event.method,

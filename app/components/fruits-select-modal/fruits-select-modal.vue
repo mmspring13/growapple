@@ -166,14 +166,14 @@ const toggleSelection = (slug: string) => {
   }
 };
 
-const selectAll = () => {
-  allFruits.value.forEach(fruit => {
-    localSelected.add(fruit.slug);
-    if (!selectedFruitsCache.value.has(fruit.slug)) {
-      selectedFruitsCache.value.set(fruit.slug, fruit);
-    }
-  });
-};
+// const selectAll = () => {
+//   allFruits.value.forEach(fruit => {
+//     localSelected.add(fruit.slug);
+//     if (!selectedFruitsCache.value.has(fruit.slug)) {
+//       selectedFruitsCache.value.set(fruit.slug, fruit);
+//     }
+//   });
+// };
 
 const clearSelection = () => {
   localSelected.clear();
@@ -232,12 +232,12 @@ const onReset = () => {
                 />
               </div>
               <div class="flex gap-2 w-full sm:w-auto">
-                <button
-                  @click="selectAll"
-                  class="flex-1 sm:flex-none px-4 py-2 text-sm font-medium text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-lg transition-colors border border-stone-200 dark:border-stone-700"
-                >
-                  Select All
-                </button>
+<!--                <button-->
+<!--                  @click="selectAll"-->
+<!--                  class="flex-1 sm:flex-none px-4 py-2 text-sm font-medium text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-lg transition-colors border border-stone-200 dark:border-stone-700"-->
+<!--                >-->
+<!--                  Select All-->
+<!--                </button>-->
                 <button
                   @click="clearSelection"
                   class="flex-1 sm:flex-none px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors border border-transparent"

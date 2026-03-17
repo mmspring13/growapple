@@ -1,19 +1,18 @@
 import { useSupabase } from "#server/modules/supabase";
 
 const { concurrentImageDownloadLimit } = useRuntimeConfig();
-// const concurrentImageDownloadLimit = 2;
 let activeRequests = 0;
 const queue: { resolve: () => void }[] = [];
 
 function runNext() {
-  if (activeRequests >= concurrentImageDownloadLimit) return;
+  if (activeRequests >= (concurrentImageDownloadLimit || 5)) return;
   if (queue.length === 0) return;
 
   const item = queue.shift();
-  if (!item) return;
-
-  activeRequests++;
-  item.resolve();
+  if (item) {
+    activeRequests++;
+    item.resolve();
+  }
 }
 
 function acquire() {
@@ -30,30 +29,51 @@ function release() {
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
-  const path = getRouterParam(event, "path");
+  const path = getRouterParam(event, "path")!;
   const supabase = useSupabase();
 
   await acquire();
 
   try {
-    const { data, error } = await supabase.storage
-      .from(config.s3BucketName)
-      .download(path);
+    const timeoutPromise = new Promise<null>((resolve) =>
+      setTimeout(() => resolve(null), 8000)
+    );
 
-    if (error || !data) {
+    const fetchPromise = (async () => {
+      const { data, error } = await supabase.storage
+        .from(config.s3BucketName)
+        .download(path);
+
+      if (error || !data) return null;
+      return data;
+    })();
+
+    const result = await Promise.race([fetchPromise, timeoutPromise]);
+
+    if (!result) {
       throw createError({
         statusCode: 404,
-        message: "Image not found",
+        statusMessage: "Image request timed out or not found",
       });
     }
 
     setHeaders(event, {
       "Cache-Control": "public, max-age=3600",
-      "Content-Type": data.type || "image/jpeg",
+      "Content-Type": result.type || "image/jpeg",
     });
 
-    // await new Promise(res => setTimeout(res, 10000, true));
-    return data.stream();
+    const arrayBuffer = await result.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    setHeaders(event, {
+      "Content-Type": result.type || "image/jpeg",
+      "Content-Length": buffer.length.toString(),
+    });
+
+    return buffer;
+
+  } catch (err) {
+    throw err.statusCode ? err : createError({ statusCode: 500, message: "Internal Error" });
   } finally {
     release();
   }
