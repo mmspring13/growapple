@@ -24,10 +24,10 @@
       </button>
     </div>
 
-    <Transition>
-      <div v-if="isLoading" class="animate-pulse" />
+    <div class="relative">
+      <div v-if="isLoading" class="animate-pulse w-full h-72 bg-zinc-800 absolute top-0" />
       <fruits-network-graph v-else :fruits="fruits" />
-    </Transition>
+    </div>
 
     <fruits-select-modal
       :is-open="isModalOpen"
@@ -55,8 +55,8 @@ import {
 } from "~/composables/fruits/list-of-fruits.generated";
 
 withDefaults(defineProps<{
-  parentColor: string;
-  childrenColor: string;
+  parentColor?: string;
+  childrenColor?: string;
 }>(), {
   parentColor: '#1EFC1E',
   childrenColor: '#7F7EFF'
@@ -83,14 +83,16 @@ const queryKey = computed(() => {
 });
 const { data, pending: isLoading } = await useAsyncData(
   queryKey.value,
-  () => $apollo.query<FruitsNetworkQuery, FruitsNetworkQueryVariables>({
-    query: ListOfFruitsDocument,
-    variables: {
-      take: take.value,
-      type: fruitTypeSlug,
-      slugs: selectedFruits.size ? Array.from(selectedFruits) : null,
-    }
-  }),
+  () => {
+    return $apollo.query<FruitsNetworkQuery, FruitsNetworkQueryVariables>({
+      query: FruitsNetworkDocument,
+      variables: {
+        take: take.value,
+        type: fruitTypeSlug,
+        slugs: selectedFruits.size ? Array.from(selectedFruits) : null,
+      }
+    })
+  },
   {
     lazy: true,
     watch: [queryKey],
@@ -125,3 +127,12 @@ useSeoMeta({
   ogDescription: d,
 });
 </script>
+
+<style scoped>
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+}
+</style>

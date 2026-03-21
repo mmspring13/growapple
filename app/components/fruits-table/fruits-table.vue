@@ -11,7 +11,7 @@
             <col style="width: 20%" />
             <col style="width: auto" />
             <col style="width: auto" />
-            <col style="width: 42%" class="min-w-xs" />
+            <col style="width: 42%" class="min-w-md" />
             <col style="width: auto" />
           </colgroup>
           <thead class="bg-stone-50 dark:bg-stone-950">

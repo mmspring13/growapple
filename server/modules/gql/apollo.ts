@@ -1,5 +1,4 @@
 import {ApolloServer} from "@apollo/server";
-// import { ApolloServerPluginLandingPageDisabled } from '@apollo/server/plugin/disabled';
 import {startServerAndCreateH3Handler} from "@as-integrations/h3";
 import { log } from "./utils";
 import { schema } from "./schema";
@@ -28,8 +27,6 @@ const apollo = new ApolloServer({
     if (AppApolloDepthError.is(err)) {
       status = 400;
       code = err.code;
-    } else {
-      message = 'unknown error';
     }
 
     log.error({
