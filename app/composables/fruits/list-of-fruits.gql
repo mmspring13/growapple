@@ -21,7 +21,7 @@ fragment FruitsListItem on Fruit {
   }
 }
 
-query ListOfFruits($type: String!, $skip: Int, $take: Int, $search: String) {
+query ListOfFruits($type: String, $skip: Int, $take: Int, $search: String) {
   fruits(type: $type, skip: $skip, take: $take, search: $search) {
     totalCount
     pageInfo {

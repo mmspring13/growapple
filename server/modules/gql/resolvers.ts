@@ -26,16 +26,15 @@ export const resolvers = {
   Query: {
     // @ts-ignore
     fruits: async (_, args, ctx, info) => {
-      const sp = useSupabase();
-      const { listFruitsLimit } = ctx;
-      const { type = 'apple', skip = 0, slugs, search = '' } = args;
-      let { take } = args;
-
       log.info({
         args,
       }, '🍏 resolve fruit query');
 
-      if (take > listFruitsLimit) {
+      const sp = useSupabase();
+      const { listFruitsLimit } = ctx.config;
+      const { type = 'apple', skip = 0, slugs, search = '' } = args;
+      let { take } = args;
+      if (!take || take > listFruitsLimit) {
         take = listFruitsLimit;
       }
 

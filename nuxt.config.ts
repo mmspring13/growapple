@@ -1,6 +1,5 @@
 import tailwindcss from "@tailwindcss/vite";
 
-
 export default defineNuxtConfig({
   modules: ['@nuxt/image'],
   css: [
@@ -22,6 +21,11 @@ export default defineNuxtConfig({
       htmlAttrs: {
         lang: 'en',
       },
+      link: [
+        { rel: 'apple-touch-icon', href: '/images/icon-180.png' },
+        { rel: 'icon', href: '/images/icon-32.png', sizes: '32x32' },
+        { rel: 'icon', href: '/images/icon-192.png', sizes: '192x192' },
+      ],
       viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
     },
     pageTransition: { name: 'page', mode: 'out-in' }
