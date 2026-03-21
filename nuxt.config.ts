@@ -1,7 +1,7 @@
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineNuxtConfig({
-  modules: ['@nuxt/image'],
+  modules: ['@nuxt/image', '~~/modules/sitemap'],
   css: [
     '~/assets/css/main.css',
   ],
