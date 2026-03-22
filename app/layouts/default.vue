@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from 'vue'
-import { Sun, Moon, Menu, X } from 'lucide-vue-next'
+import { Menu } from 'lucide-vue-next'
+import Github from '~/assets/icons/github.svg';
 
 const config = useRuntimeConfig();
 const siteName = config.public.siteName;
@@ -44,33 +45,7 @@ watch(isDark, updateThemeClass)
 const currentYear = computed(() => new Date().getFullYear())
 
 useHead({
-  titleTemplate: (titleChunk) => {
-    return titleChunk
-      ? `${titleChunk} - ${siteName}`
-      : `${siteName} | The Apple Genealogy Project - Explore Fruit Heritage`
-  },
-  meta: [
-    {
-      name: 'description',
-      content: 'Discover the fascinating world of fruit genealogy. Explore genetic relationships, historical origins, and complex lineages of apple varieties and other fruits through interactive visualizations and comprehensive databases.'
-    },
-    {
-      name: 'keywords',
-      content: 'apple genealogy, fruit heritage, pomology, apple varieties, fruit database, genetic relationships, fruit history'
-    },
-    {
-      property: 'og:title',
-      content: 'The Apple Genealogy Project | Explore Fruit Heritage'
-    },
-    {
-      property: 'og:description',
-      content: 'Discover the fascinating world of fruit genealogy. Explore genetic relationships, historical origins, and complex lineages of apple varieties and other fruits.'
-    },
-    {
-      property: 'og:type',
-      content: 'website'
-    }
-  ]
+  title: siteName,
 });
 </script>
 
@@ -129,6 +104,11 @@ useHead({
         <p class="max-w-2xl text-xs text-stone-400 dark:text-stone-500">
           <strong>Free Use License:</strong> All information on this site may be freely used, copied, and distributed without any requirement for attribution or source linking.
         </p>
+        <div>
+          <a href="https://github.com/mmspring13/growapple" target="_blank">
+            <Github />
+          </a>
+        </div>
       </div>
     </footer>
   </div>

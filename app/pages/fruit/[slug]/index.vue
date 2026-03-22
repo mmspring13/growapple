@@ -20,7 +20,6 @@ const { data: fruit, pending: isLoading } = await useAsyncData(
   }),
   {
     watch: [queryKey],
-    lazy: true,
     transform: (result) => {
       if (!result.error) {
         return result.data?.fruit;
@@ -146,7 +145,7 @@ useSeoMeta({
 <!--          </div>-->
         </section>
 
-        <div v-if="fruit.images && fruit.images.length > 0" class="pt-8 border-t border-stone-200 dark:border-stone-800">
+        <div v-if="fruit.images && fruit.images.length > 0" class="pt-8 border-t border-stone-200 dark:border-stone-800 pb-6">
           <h2 class="text-2xl font-serif font-medium text-stone-900 dark:text-stone-100 mb-6">Image Gallery</h2>
           <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             <div v-for="(image, index) in fruit.images" :key="index" class="aspect-square rounded-xl overflow-hidden border border-stone-100 dark:border-stone-800 shadow-sm">
@@ -248,7 +247,7 @@ useSeoMeta({
 }
 
 .hero-image-container {
-  @apply aspect-square rounded-2xl bg-stone-100 dark:bg-stone-800 flex items-center justify-center border border-stone-100 dark:border-stone-800 shadow-inner overflow-hidden relative;
+  @apply aspect-square rounded-2xl bg-stone-100 dark:bg-stone-800 flex items-center justify-center border border-stone-100 dark:border-stone-800 shadow-inner overflow-hidden relative max-w-lg;
 }
 
 .placeholder-art {

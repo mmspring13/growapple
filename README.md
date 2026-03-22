@@ -1,49 +1,61 @@
-# Nuxt.js GraphQL Project
+# growapple
 
-A Nuxt.js project with GraphQL integration.
+**growapple** is an interactive web application dedicated to preserving and visualizing the complex genetic history of apple cultivars. From ancient chance seedlings to modern bred varieties, this project makes botanical history accessible through a high-performance, data-driven interface.
 
 ## Features
 
-- Nuxt.js for server-side rendering
-- GraphQL for data fetching
-- TypeScript for type safety
+* 🍎 **Comprehensive Directory**: Browse a detailed list of apple varieties, filterable by name and origin.
+* 🧬 **Interactive Network Graph**: Visualize the genetic connections (parentage and offspring) between varieties using an interactive force-directed graph.
+* 📖 **Detailed Profiles**: View information for each apple, including its introduction year and origin.
+* 🌙 **Dark-Only UI**: A sleek, focused interface designed exclusively for dark mode.
+* 🔍 **SEO Optimized**: Leveraging Nuxt's server-side rendering for improved discoverability.
 
-## Getting Started
+## Tech Stack
 
-1. **Clone the repository:**
+The project utilizes a **BFF (Backend-for-Frontend)** architecture to merge and serve complex botanical data:
 
-   ```bash
-   git clone <repository-url>
-   ```
+* **Framework**: [Nuxt 3](https://nuxt.com/)
+* **GraphQL Client**: [Apollo Client (Nuxt Apollo)](https://apollo.nuxtjs.org/)
+* **Database**: [Supabase](https://supabase.com/)
+* **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
+* **Data Visualization**: [D3.js](https://d3js.org/)
 
-2. **Install dependencies:**
+## 📡 API & Development
 
-   ```bash
-   npm install
-   ```
+> [!IMPORTANT]
+> **Local Project Access**: The source code for local development is currently restricted and will be made accessible at a later date.
 
-3. **Run the development server:**
+### Public GraphQL API
+You can interact with the live data through our public endpoint:
+* **API URL**: `https://growapple.org/api/fruit/gql`
+* **Playground**: Explore the schema and test queries via [Apollo Sandbox](https://studio.apollographql.com/sandbox/explorer?endpoint=https://growapple.org/api/fruit/gql)
 
-   ```bash
-   npm run dev
-   ```
-
-## Dependencies
-
-- [Nuxt.js](https://nuxtjs.org/)
-- [GraphQL](https://graphql.org/)
-- [Vue.js](https://vuejs.org/)
-- [TypeScript](https://www.typescriptlang.org/)
-
-## Project Structure
-
-- `app/`: Contains the main application logic.
-- `server/`: Contains the GraphQL server.
-- `public/`: Contains public assets.
-- `shared/`: Contains shared code between the client and server.
-- `nuxt.config.ts`: Nuxt.js configuration file.
-- `codegen.ts`: GraphQL codegen configuration file.
-
-## License
-
-This project is licensed under the MIT License.
+### Example Query
+```graphql
+query Fruits {
+  fruits {
+    pageInfo {
+      hasNextPage
+      skip
+      take
+    }
+    data {
+      id
+      slug
+      name
+      short_description
+      children {
+        id
+        slug
+        children {
+          slug
+        }
+      }
+      parentage {
+        id
+        slug
+        name
+      }
+    }
+  }
+}

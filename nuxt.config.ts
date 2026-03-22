@@ -1,7 +1,7 @@
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineNuxtConfig({
-  modules: ['@nuxt/image'],
+  modules: ['@nuxt/image', '~~/modules/sitemap', 'nuxt-svgo'],
   css: [
     '~/assets/css/main.css',
   ],
@@ -18,6 +18,31 @@ export default defineNuxtConfig({
   },
   app: {
     head: {
+      // %s is the placeholder for the page title
+      titleTemplate: '%s - The Apple Genealogy Project',
+      title: 'The Apple Genealogy Project - Explore Fruit Heritage', // Default if page has no title
+      meta: [
+        {
+          name: 'description',
+          content: 'Discover the fascinating world of fruit genealogy. Explore genetic relationships, historical origins, and complex lineages of apple varieties and other fruits through interactive visualizations and comprehensive databases.'
+        },
+        {
+          name: 'keywords',
+          content: 'apple genealogy, fruit heritage, pomology, apple varieties, fruit database, genetic relationships, fruit history'
+        },
+        {
+          property: 'og:title',
+          content: 'The Apple Genealogy Project | Explore Fruit Heritage'
+        },
+        {
+          property: 'og:description',
+          content: 'Discover the fascinating world of fruit genealogy. Explore genetic relationships, historical origins, and complex lineages of apple varieties and other fruits.'
+        },
+        {
+          property: 'og:type',
+          content: 'website'
+        }
+      ],
       htmlAttrs: {
         lang: 'en',
       },
