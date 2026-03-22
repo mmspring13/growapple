@@ -58,7 +58,7 @@ useSeoMeta({
         </h2>
       </div>
       <p class="text-stone-600 dark:text-stone-300 leading-relaxed">
-        This project is built with modern web technologies including React, D3.js for data visualization, and Tailwind CSS for styling. It serves as both an educational tool and a demonstration of interactive data visualization techniques.
+        This project is built with modern web technologies including Nuxtjs, D3.js for data visualization, and Tailwind CSS for styling, Graphql (apollo) for API. It serves as both an educational tool and a demonstration of interactive data visualization techniques.
       </p>
     </div>
 

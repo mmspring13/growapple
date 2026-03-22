@@ -20,7 +20,6 @@ const { data: fruit, pending: isLoading } = await useAsyncData(
   }),
   {
     watch: [queryKey],
-    lazy: true,
     transform: (result) => {
       if (!result.error) {
         return result.data?.fruit;
@@ -248,7 +247,7 @@ useSeoMeta({
 }
 
 .hero-image-container {
-  @apply aspect-square rounded-2xl bg-stone-100 dark:bg-stone-800 flex items-center justify-center border border-stone-100 dark:border-stone-800 shadow-inner overflow-hidden relative;
+  @apply aspect-square rounded-2xl bg-stone-100 dark:bg-stone-800 flex items-center justify-center border border-stone-100 dark:border-stone-800 shadow-inner overflow-hidden relative max-w-lg;
 }
 
 .placeholder-art {
