@@ -70,7 +70,6 @@
 import { ArrowRight, NetworkIcon, LucideListTree } from 'lucide-vue-next';
 
 useHead({
-  // title: 'das',
   meta: [
     {
       name: 'description',
