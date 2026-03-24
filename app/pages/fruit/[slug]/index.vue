@@ -1,18 +1,16 @@
 <script setup lang="ts">
-import { ArrowLeft, Calendar, MapPin, GitBranch, ChevronUpIcon, ChevronDownIcon } from 'lucide-vue-next';
+import { ArrowLeft, Calendar, MapPin, GitBranch } from 'lucide-vue-next';
 import FruitGeneticTree from "~/components/fruit-genetic-tree/fruit-genetic-tree.vue";
 import { AppFruitDocument, type AppFruitQuery, type AppFruitQueryVariables } from "~/composables/fruit/fruit.generated";
 import FruitSlugLoader from "~/components/fruit-slug/fruit-slug-loader.vue";
 
 const route = useRoute();
 const fruitSlug = route.params.slug as string;
-// const isDescriptionExpanded = ref(false);
 
 const { $apollo } = useNuxtApp();
 
-// Data Fetching
 const queryKey = computed(() => `fruit-${fruitSlug}`)
-const { data: fruit, pending: isLoading } = await useAsyncData(
+const { data: fruit, pending } = useAsyncData(
   queryKey.value,
   () => $apollo.query<AppFruitQuery, AppFruitQueryVariables>({
     query: AppFruitDocument,
