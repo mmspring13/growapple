@@ -45,7 +45,12 @@ watch(isDark, updateThemeClass)
 const currentYear = computed(() => new Date().getFullYear())
 
 useHead({
-  // title: siteName,
+  titleTemplate: (chunk) => {
+    if (chunk) {
+      return `${chunk} - The Apple Genealogy Project | Growapple`
+    }
+    return 'Growapple - The Apple Genealogy Project'
+  },
 });
 </script>
 

@@ -35,14 +35,6 @@ const seoDesc = computed(
   () => `Learn about the ${fruit.value?.name} apple variety, its origin, and genetic lineage.`
 );
 const seoAvatar = computed(() => fruit.value?.avatar?.url || '');
-useSeoMeta({
-  title: fruit.value?.name,
-  description: seoDesc,
-  ogDescription: fruit.value?.short_description || seoDesc,
-  ogImage: {
-    url: fruit.value?.avatar?.url || '',
-  }
-});
 </script>
 
 <template>
