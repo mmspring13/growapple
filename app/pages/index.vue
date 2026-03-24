@@ -70,7 +70,7 @@
 import { ArrowRight, NetworkIcon, LucideListTree } from 'lucide-vue-next';
 
 useHead({
-  title: 'The Apple Genealogy Project | Explore Fruit Heritage',
+  // title: 'das',
   meta: [
     {
       name: 'description',

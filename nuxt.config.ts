@@ -19,8 +19,8 @@ export default defineNuxtConfig({
   app: {
     head: {
       // %s is the placeholder for the page title
-      titleTemplate: '%s - The Apple Genealogy Project',
-      title: 'The Apple Genealogy Project - Explore Fruit Heritage', // Default if page has no title
+      titleTemplate: '%s - The Apple Genealogy Project | Growapple',
+      title: 'Explore Fruit Heritage', // Default if page has no title
       meta: [
         {
           name: 'description',

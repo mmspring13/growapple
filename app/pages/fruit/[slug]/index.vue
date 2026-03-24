@@ -31,7 +31,10 @@ const relations = computed(() => [
   { label: 'Offspring', data: fruit.value?.children || [], icon: GitBranch, flip: true, empty: 'No recorded major offspring' }
 ]);
 
-const seoDesc = `Learn about the ${fruit.value?.name} apple variety, its origin, and genetic lineage.`;
+const seoDesc = computed(
+  () => `Learn about the ${fruit.value?.name} apple variety, its origin, and genetic lineage.`
+);
+const seoAvatar = computed(() => fruit.value?.avatar?.url || '');
 useSeoMeta({
   title: fruit.value?.name,
   description: seoDesc,
@@ -44,6 +47,25 @@ useSeoMeta({
 
 <template>
   <div class="space-y-8">
+    <Head>
+      <Title>{{ fruit?.name }}</Title>
+      <Meta
+        name="description"
+        :content="seoDesc"
+      />
+      <Meta
+        name="og:description"
+        :content="fruit?.short_description || seoDesc"
+      />
+      <Meta
+        name="og:image"
+        :content="seoAvatar"
+      />
+      <Style>
+        body { background-color: green; }
+      </Style>
+    </Head>
+
     <NuxtLink to="/" class="nav-back">
       <ArrowLeft class="w-4 h-4 mr-1" /> Back to Directory
     </NuxtLink>
@@ -53,7 +75,7 @@ useSeoMeta({
         <fruit-slug-loader />
       </div>
       <div v-else>
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start mb-4">
           <div class="lg:col-span-2 space-y-6">
             <header>
               <span class="badge-slug">{{ fruit.slug }} ({{ fruit.id }})</span>
@@ -78,7 +100,7 @@ useSeoMeta({
               </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div v-for="rel in relations" :key="rel.label" class="relation-card">
                 <h3 class="relation-title">
                   <component :is="rel.icon" :class="['w-4 h-4', rel.flip ? 'rotate-180' : '']" />

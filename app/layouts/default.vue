@@ -45,7 +45,7 @@ watch(isDark, updateThemeClass)
 const currentYear = computed(() => new Date().getFullYear())
 
 useHead({
-  title: siteName,
+  // title: siteName,
 });
 </script>
 
