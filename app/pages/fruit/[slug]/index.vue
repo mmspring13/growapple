@@ -223,7 +223,7 @@ const seoAvatar = computed(() => fruit.value?.avatar?.url || '');
 }
 
 .text-lead {
-  @apply text-base text-stone-600 dark:text-stone-300 leading-relaxed;
+  @apply text-base text-stone-600 dark:text-stone-300 leading-relaxed whitespace-pre-wrap;
 }
 
 .text-muted {
