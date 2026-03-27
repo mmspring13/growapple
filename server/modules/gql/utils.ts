@@ -8,6 +8,7 @@ function buildSupabaseSelect(
   fields: any,
   excludeFields: string[] = [],
   requiredFields?: string[],
+  restFields: string[] = [],
 ): string[] {
   const arrFields = Object.entries(fields)
     .filter(([name]) => !excludeFields.includes(name))
@@ -17,10 +18,12 @@ function buildSupabaseSelect(
         : null;
 
       if (childTypes && Object.keys(childTypes).length > 0) {
-        let nested = buildSupabaseSelect(childTypes, excludeFields);
+        let nested = buildSupabaseSelect(childTypes, excludeFields, requiredFields, restFields);
         return `${name}(${nested})`;
       }
-
+      if (restFields.includes(name)) {
+        return `rest->${name}`;
+      }
       return name;
     })
     if (requiredFields?.length) {
@@ -43,13 +46,7 @@ export const getSelectedFields = (
     parsedInfo,
     info.returnType
   );
-  let arrFields = buildSupabaseSelect(fields, excludeFields, requiredFields);
-  if (arrFields[arrFields.length - 2]?.startsWith('data(')) {
-    const selectFields = [arrFields[arrFields.length - 1]];
-    selectFields.unshift(arrFields[arrFields.length - 2]?.replace(/^data\(|\)$/g, ''));
-    return selectFields.join(',');
-  }
-  return arrFields?.join(',');
+  return buildSupabaseSelect(fields, excludeFields, requiredFields, ['color']);
 }
 
 export const fetchFromSupabase = async (
@@ -62,7 +59,7 @@ export const fetchFromSupabase = async (
   log.info({
     from,
     select,
-  }, "start fetch from supabase");
+  }, "🚚 start fetch from supabase 🗂️");
   const sp = useSupabase();
   let query = sp.from(from).select(select);
   query = filter(query);

@@ -5,6 +5,7 @@ schema {
 type Fruit {
   avatar: FruitAvatar
   children: [Fruit!]!
+  color: String
   description: String
   id: ID!
   images: [String]

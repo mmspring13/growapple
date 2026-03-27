@@ -18,6 +18,7 @@ export type Fruit = {
   __typename?: 'Fruit';
   avatar?: Maybe<FruitAvatar>;
   children: Array<Fruit>;
+  color?: Maybe<Scalars['String']['output']>;
   description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   images?: Maybe<Array<Maybe<Scalars['String']['output']>>>;

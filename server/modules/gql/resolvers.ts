@@ -1,10 +1,27 @@
 import {useSupabase} from "#server/modules/supabase";
-import {log, getSelectedFields, fetchFromSupabase} from "./utils";
+import {log, getSelectedFields as _getSelectedFields, fetchFromSupabase} from "./utils";
 import {AppApolloDepthError, AppApolloErrorCodes} from './errors';
 import type {FieldNode} from "graphql/language";
 import type {Fruit} from "~/_codegen/types";
+import {AppApolloContext} from "#server/modules/gql/types";
 
 const imgDir = 'fruit_images/';
+
+// @ts-ignore
+const getSpecificFields= (info) => {
+  let arrFields = _getSelectedFields(info, ['images', 'avatar', 'totalCount', 'pageInfo']);
+  console.log('arrFields', arrFields);
+  for (const j in arrFields) {
+    const i = Number(j);
+    if (arrFields[i]?.startsWith(('data('))) {
+      arrFields[i] = arrFields[i].replace(/^data\(|\)$/g, '');
+    }
+    if (arrFields[i]?.startsWith(('color'))) {
+      arrFields[i] = arrFields[i].replace(/^color/g, 'rest->color');
+    }
+  }
+  return arrFields.join(',');
+};
 
 const getDepth = (node: FieldNode, currentDepth = 0): number => {
   if (!node.selectionSet) {
@@ -38,7 +55,8 @@ export const resolvers = {
         take = listFruitsLimit;
       }
 
-      const selectFields = getSelectedFields(info, ['images', 'avatar']);
+      const selectFields = getSpecificFields(info);
+      console.log('selectFields', selectFields);
       if (!selectFields) {
         throw new Error("empty selected fields");
       }
@@ -82,7 +100,7 @@ export const resolvers = {
       log.info({
         slug
       }, '🍏 resolve fruit query');
-      const selectFields = getSelectedFields(info, ['avatar', 'images']);
+      const selectFields = getSpecificFields(info);
       if (!selectFields) {
         throw new Error("empty selected fields");
       }
@@ -106,7 +124,7 @@ export const resolvers = {
       return parent.children;
     },
     // @ts-ignore
-    parentage: (parent, _, ctx, info) => {
+    parentage: (parent, _, ctx: AppApolloContext, info) => {
       const { fruitDepthLimit } = ctx.config;
       const depth = getDepth(info.fieldNodes[0]) - 2;
       if (depth > fruitDepthLimit) {

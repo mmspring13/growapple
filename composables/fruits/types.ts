@@ -4,6 +4,7 @@ export interface Fruit {
   slug: string;
   opening_year?: number;
   short_description?: string;
+  color: string;
   parentage?: {
     id: number;
     name: string;
@@ -12,9 +13,6 @@ export interface Fruit {
     id: number;
     name: string;
   }[];
-  rest?: {
-    color?: string;
-  };
   avatar?: {
     url: string;
   };

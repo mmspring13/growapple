@@ -29,7 +29,7 @@
         >
           <div
             class="w-3 h-3 rounded-full border border-white/20 shrink-0 group-hover:scale-110 transition-transform"
-            :style="{ backgroundColor: colorMap.get(fruit.id) || '#cccccc' }"
+            :style="{ backgroundColor: fruit.color || '#087E8B' }"
           ></div>
           <span class="text-white text-xs truncate" :title="fruit.name">{{ fruit.name }}</span>
         </div>
@@ -69,13 +69,8 @@ let resizeObserver: ResizeObserver | null = null;
 
 const parentColor = ref('#DB5461');
 const childrenColor = ref('#31AFD4');
-const colorMap = ref<Map<string, string>>(new Map());
 
-// 1. Color and Data Management
-watch(() => props.fruits, (newFruits) => {
-  newFruits.forEach(f => {
-    if (!colorMap.value.has(f.id)) colorMap.value.set(f.id, getRandomTailwindColor());
-  });
+watch(() => props.fruits, () => {
   updateGraphData();
 }, { immediate: true });
 
@@ -83,12 +78,10 @@ watch(hoveredFruitId, (id) => highlightNodes(id));
 
 const sortedFruits = computed(() => [...props.fruits].sort((a, b) => a.name.localeCompare(b.name)));
 
-// 2. Core Graph Logic
 function updateGraphData() {
   const width = containerRef.value?.clientWidth || 0;
   const height = 600;
 
-  // If container isn't ready yet, don't position nodes at 0
   if (width === 0) return;
 
   const existingNodes = new Map(nodes.value.map(d => [d.id, d]));
@@ -97,8 +90,7 @@ function updateGraphData() {
     const old = existingNodes.get(f.id);
     return {
       ...f,
-      color: colorMap.value.get(f.id) || '#ccc',
-      // Ensure we don't start at 0 if we can help it
+      color: f.color || '#087E8B',
       x: old?.x ?? (width / 2 + (Math.random() - 0.5) * 100),
       y: old?.y ?? (height / 2 + (Math.random() - 0.5) * 100),
       vx: old?.vx ?? 0,
@@ -194,7 +186,6 @@ function renderElements() {
   simulation.alpha(0.5).restart();
 }
 
-// 3. Highlight & Interactivity
 function highlightNodes(activeId: number | null) {
   const svg = d3.select(svgRef.value);
   if (!svg.node()) return;
@@ -227,12 +218,9 @@ function highlightNodes(activeId: number | null) {
   });
 }
 
-// 4. Lifecycle & Resize
 onMounted(async () => {
-  // Wait for Nuxt/Vue to finish layout
   await nextTick();
 
-  // Use ResizeObserver for the most reliable dimension tracking
   resizeObserver = new ResizeObserver(() => {
     if (containerRef.value?.clientWidth) {
       updateGraphData();
@@ -251,7 +239,6 @@ onUnmounted(() => {
   if (simulation) simulation.stop();
 });
 
-// Drag handlers
 function dragstarted(event: any) {
   if (!event.active) simulation?.alphaTarget(0.2).restart();
   event.subject.fx = event.subject.x;

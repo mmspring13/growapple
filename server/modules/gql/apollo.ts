@@ -63,7 +63,7 @@ export const apolloServerEventHandler = startServerAndCreateH3Handler(apollo, {
     log.info({
       method: event.event.method,
       config,
-    }, '🛰️ run apollo server handler')
+    }, '🛰️ run apollo server handler 👒')
 
     return { appContext: true, config };
   },

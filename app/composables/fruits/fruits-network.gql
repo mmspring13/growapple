@@ -3,6 +3,7 @@ fragment SubItemNetworkFruit on Fruit {
   name
   slug
   opening_year
+  color
   avatar {
     ...AppFruitAvatar
   }
@@ -12,6 +13,7 @@ fragment NetworkFruit on Fruit {
   id
   name
   slug
+  color
   parentage {
     ...SubItemNetworkFruit
   }
