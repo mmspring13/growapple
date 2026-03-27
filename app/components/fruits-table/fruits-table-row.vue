@@ -1,7 +1,7 @@
-
 <template>
   <tr
-    class="hover:bg-primary-50 dark:hover:bg-stone-800 transition-colors group cursor-pointer"
+    class="fruit-table-row group hover:bg-primary-50"
+    :style="{ '--fruit-color': fruit.color || '#087E8B' }"
     @click="navigateToFruit"
   >
     <td class="table-td-default">
@@ -13,7 +13,7 @@
       <div class="flex items-center">
         <div 
           class="shrink-0 border relative overflow-hidden h-10 w-10 rounded-full flex items-center justify-center border-stone-200 dark:border-stone-700"
-          :style="{ backgroundColor: (fruit.rest?.color || '#ccc') + '20' }"
+          :style="{ backgroundColor: (fruit?.color || '#ccc') + '20' }"
         >
           <NuxtImg
             v-if="fruit.avatar"
@@ -75,8 +75,26 @@ const navigateToFruit = () => {
 <style scoped>
 @reference "tailwindcss";
 
+.fruit-table-row {
+  @apply relative transition-colors cursor-pointer;
+  &:after {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: linear-gradient(90deg,
+    var(--color-stone-800) 16%,
+    var(--color-stone-900) 24%,
+    var(--fruit-color) 100%);
+    opacity: .15;
+  }
+}
+
 .table-td-default {
-  @apply px-6 py-4 whitespace-nowrap text-sm text-stone-500 dark:text-stone-400;
+  @apply px-6 py-4 whitespace-nowrap text-sm text-stone-500 dark:text-stone-400 z-10;
 }
 .family-label {
   @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-300;

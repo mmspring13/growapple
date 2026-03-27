@@ -10,6 +10,7 @@ fragment FruitsListItem on Fruit {
   opening_year
   images
   short_description
+  color
   avatar {
     ...AppFruitAvatar
   }

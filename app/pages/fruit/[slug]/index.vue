@@ -77,6 +77,19 @@ const seoAvatar = computed(() => fruit.value?.avatar?.url || '');
 
             <div class="stats-container">
               <div class="stat-block">
+                <div
+                  class="w-12 h-12 rounded-2xl shadow-inner border border-stone-200 dark:border-stone-700"
+                  :style="{ backgroundColor: fruit.color || '#087E8B' }"
+                ></div>
+                <div>
+                  <div class="stat-label">Primary Hue</div>
+                  <div class="stat-value font-mono">
+                    {{ fruit.color || "Unknown" }}
+                  </div>
+                </div>
+              </div>
+
+              <div class="stat-block">
                 <Calendar class="stat-icon" />
                 <div>
                   <div class="stat-label">Introduced</div>
