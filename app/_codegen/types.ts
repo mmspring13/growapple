@@ -25,6 +25,7 @@ export type Fruit = {
   name?: Maybe<Scalars['String']['output']>;
   opening_year?: Maybe<Scalars['Int']['output']>;
   parentage: Array<Fruit>;
+  ripening_period?: Maybe<Scalars['String']['output']>;
   short_description?: Maybe<Scalars['String']['output']>;
   slug: Scalars['String']['output'];
   type: Scalars['String']['output'];

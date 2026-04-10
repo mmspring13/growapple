@@ -16,6 +16,7 @@ export const schema = `#graphql
     parentage: [Fruit!]!
     children: [Fruit!]!
     color: String
+    ripening_period: String
   }
 
   type FruitType {

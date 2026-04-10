@@ -12,6 +12,7 @@ type Fruit {
   name: String
   opening_year: Int
   parentage: [Fruit!]!
+  ripening_period: String
   short_description: String
   slug: String!
   type: String!

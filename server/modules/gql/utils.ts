@@ -46,7 +46,7 @@ export const getSelectedFields = (
     parsedInfo,
     info.returnType
   );
-  return buildSupabaseSelect(fields, excludeFields, requiredFields, ['color']);
+  return buildSupabaseSelect(fields, excludeFields, requiredFields, ['color', 'ripening_period']);
 }
 
 export const fetchFromSupabase = async (

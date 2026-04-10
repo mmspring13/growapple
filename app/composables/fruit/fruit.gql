@@ -28,6 +28,7 @@ fragment AppFruit on Fruit {
   }
   images
   opening_year
+  ripening_period
   type
   color
 }
