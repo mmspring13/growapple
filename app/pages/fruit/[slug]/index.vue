@@ -35,6 +35,35 @@ const seoDesc = computed(
   () => `Learn about the ${fruit.value?.name} apple variety, its origin, and genetic lineage.`
 );
 const seoAvatar = computed(() => fruit.value?.avatar?.url || '');
+
+function formatRipeningPeriod(period?: string) {
+  if (!period) return "Unknown";
+  const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const parts: string[] = period.split('_');
+
+  if (parts.length === 1) {
+    // @ts-expect-error
+    const monthIndex = parseInt(parts[0], 10) - 1;
+    if (monthIndex >= 0 && monthIndex < 12) {
+      return `In ${months[monthIndex]}`;
+    }
+  } else if (parts.length === 2) {
+    // @ts-expect-error
+    const startMonthIndex = parseInt(parts[0], 10) - 1;
+    // @ts-expect-error
+    const endMonthIndex = parseInt(parts[1], 10) - 1;
+
+    if (startMonthIndex >= 0 && startMonthIndex < 12 && endMonthIndex >= 0 && endMonthIndex < 12) {
+      if (startMonthIndex === endMonthIndex) {
+        return `In ${months[startMonthIndex]}`;
+      }
+      return `From ${months[startMonthIndex]} to ${months[endMonthIndex]}`;
+    }
+  }
+
+  return period;
+}
+
 </script>
 
 <template>
@@ -101,6 +130,16 @@ const seoAvatar = computed(() => fruit.value?.avatar?.url || '');
                 <div>
                   <div class="stat-label">Type</div>
                   <div class="stat-value capitalize">{{ fruit.type || "Unknown" }}</div>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-4">
+                <Sun class="stat-icon" />
+                <div>
+                  <div class="stat-label">Ripening Period</div>
+                  <div class="stat-value">
+                    {{ formatRipeningPeriod(fruit.ripening_period) }}
+                  </div>
                 </div>
               </div>
             </div>
@@ -223,7 +262,7 @@ const seoAvatar = computed(() => fruit.value?.avatar?.url || '');
 }
 
 .text-lead {
-  @apply text-base text-stone-600 dark:text-stone-300 leading-relaxed;
+  @apply text-base text-stone-600 dark:text-stone-300 leading-relaxed whitespace-pre-wrap;
 }
 
 .text-muted {
