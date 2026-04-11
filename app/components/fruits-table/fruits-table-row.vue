@@ -81,7 +81,7 @@ const navigateToFruit = () => {
 
 .fruit-avatar {
   @apply shrink-0 border relative overflow-hidden h-10 w-10 rounded-full flex items-center justify-center border-stone-200 dark:border-stone-700;
-  filter: drop-shadow(-1px -1px 4px var(--fruit-color));
+  outline: 2px solid var(--fruit-color);
 }
 
 .table-td-default {
