@@ -83,7 +83,7 @@
                 :class="[
                   'px-3 py-2 text-sm font-medium rounded-lg transition-colors',
                   page === currentPage
-                    ? 'bg-orange-600 text-white'
+                    ? 'bg-red-600 text-white'
                     : 'border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800'
                 ]"
               >

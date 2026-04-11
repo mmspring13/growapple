@@ -55,13 +55,13 @@ useHead({
 </script>
 
 <template>
-  <div class="flex flex-col min-h-screen bg-[#FDFCF8] dark:bg-stone-950 text-stone-900 dark:text-stone-100 font-sans selection:bg-orange-200 dark:selection:bg-orange-900 transition-colors duration-300">
+  <div class="flex flex-col min-h-screen bg-[#FDFCF8] dark:bg-stone-950 text-stone-900 dark:text-stone-100 font-sans selection:bg-red-200 dark:selection:bg-red-900 transition-colors duration-300">
     <nav class="sticky top-0 z-50 w-full border-b border-stone-200 dark:border-stone-800 bg-[#FDFCF8]/80 dark:bg-stone-950/80 backdrop-blur-md transition-colors duration-300">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex h-16 items-center justify-between">
           <div class="flex items-center gap-2">
             <NuxtLink to="/" class="flex items-center gap-2 group" @click="closeMobileMenu">
-              <div class="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white font-serif italic font-bold text-lg group-hover:scale-105 transition-transform">
+              <div class="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center text-white font-serif italic font-bold text-lg group-hover:scale-105 transition-transform">
                 A
               </div>
               <span class="text-xl font-serif font-bold tracking-tight text-stone-900 dark:text-stone-100">
@@ -123,9 +123,9 @@ useHead({
 @reference "tailwindcss";
 
 .mobile-nav-link {
-  @apply block px-3 py-2 rounded-md text-base font-medium text-stone-700 dark:text-stone-300 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors;
+  @apply block px-3 py-2 rounded-md text-base font-medium text-stone-700 dark:text-stone-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors;
 }
 .desktop-nav-link {
-  @apply text-sm font-medium text-stone-600 dark:text-stone-400 hover:text-orange-600 dark:hover:text-orange-400 transition-colors px-3 py-2 rounded-md;
+  @apply text-sm font-medium text-stone-600 dark:text-stone-400 hover:text-red-600 dark:hover:text-red-400 transition-colors px-3 py-2 rounded-md;
 }
 </style>
