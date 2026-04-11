@@ -17,7 +17,7 @@
         Filter Varieties
         <span
           v-if="selectedFruits.size > 0"
-          class="ml-1 px-2 py-0.5 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 text-xs rounded-full"
+          class="ml-1 px-2 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-xs rounded-full"
         >
           {{ selectedFruits.size }}
         </span>

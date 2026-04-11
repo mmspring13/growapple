@@ -228,7 +228,7 @@ const onReset = () => {
                   v-model="searchTerm"
                   type="text"
                   placeholder="Search varieties..."
-                  class="w-full pl-9 pr-4 py-2 rounded-lg border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  class="w-full pl-9 pr-4 py-2 rounded-lg border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-red-500"
                 />
               </div>
               <div class="flex gap-2 w-full sm:w-auto">
@@ -257,10 +257,10 @@ const onReset = () => {
                   v-for="apple in selectedFruits"
                   :key="'selected-' + apple.id"
                   @click="toggleSelection(apple.slug)"
-                  class="group relative p-4 rounded-xl border cursor-pointer transition-all duration-200 flex flex-col items-center text-center gap-3 border-orange-500 bg-orange-50 dark:bg-orange-900/20 ring-1 ring-orange-500"
+                  class="group relative p-4 rounded-xl border cursor-pointer transition-all duration-200 flex flex-col items-center text-center gap-3 border-red-500 bg-red-50 dark:bg-red-900/20 ring-1 ring-red-500"
                 >
                   <div class="absolute top-3 right-3">
-                    <div class="w-5 h-5 rounded-full border flex items-center justify-center transition-colors bg-orange-500 border-orange-500 text-white">
+                    <div class="w-5 h-5 rounded-full border flex items-center justify-center transition-colors bg-red-500 border-red-500 text-white">
                       <Check class="w-3 h-3" />
                     </div>
                   </div>
@@ -286,10 +286,10 @@ const onReset = () => {
                   v-for="apple in unselectedFruits"
                   :key="'unselected-' + apple.id"
                   @click="toggleSelection(apple.slug)"
-                  class="group relative p-4 rounded-xl border cursor-pointer transition-all duration-200 flex flex-col items-center text-center gap-3 border-stone-200 dark:border-stone-700 hover:border-orange-300 dark:hover:border-orange-700 hover:bg-stone-50 dark:hover:bg-stone-800"
+                  class="group relative p-4 rounded-xl border cursor-pointer transition-all duration-200 flex flex-col items-center text-center gap-3 border-stone-200 dark:border-stone-700 hover:border-red-300 dark:hover:border-red-700 hover:bg-stone-50 dark:hover:bg-stone-800"
                 >
                   <div class="absolute top-3 right-3">
-                    <div class="w-5 h-5 rounded-full border flex items-center justify-center transition-colors border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-800 group-hover:border-orange-400">
+                    <div class="w-5 h-5 rounded-full border flex items-center justify-center transition-colors border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-800 group-hover:border-red-400">
                     </div>
                   </div>
 
@@ -314,7 +314,7 @@ const onReset = () => {
               <div ref="observerTarget" class="h-4 w-full mt-4" />
 
               <div v-if="isLoading" class="text-center py-4">
-                <div class="inline-block w-6 h-6 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+                <div class="inline-block w-6 h-6 border-2 border-red-500 border-t-transparent rounded-full animate-spin"></div>
               </div>
 
               <div v-if="!isLoading && allFruits.length === 0" class="text-center py-12 text-stone-500">

@@ -12,7 +12,7 @@
     <td class="table-td-default">
       <div class="flex items-center">
         <div 
-          class="shrink-0 border relative overflow-hidden h-10 w-10 rounded-full flex items-center justify-center border-stone-200 dark:border-stone-700"
+          class="fruit-avatar"
           :style="{ backgroundColor: (fruit?.color || '#ccc') + '20' }"
         >
           <NuxtImg
@@ -52,7 +52,7 @@
       </div>
     </td>
     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-      <NuxtLink :to="`/fruit/${fruit.slug}`" class="text-orange-600 dark:text-orange-400 hover:text-orange-900 dark:hover:text-orange-300 inline-flex items-center gap-1 opacity-20 group-hover:opacity-100 transition-opacity">
+      <NuxtLink :to="`/fruit/${fruit.slug}`" class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 inline-flex items-center gap-1 opacity-20 group-hover:opacity-100 transition-opacity">
         Details <ArrowRight class="w-4 h-4" />
       </NuxtLink>
     </td>
@@ -77,20 +77,11 @@ const navigateToFruit = () => {
 
 .fruit-table-row {
   @apply relative transition-colors cursor-pointer;
-  &:after {
-    content: '';
-    display: block;
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-    background: linear-gradient(90deg,
-    var(--color-stone-800) 16%,
-    var(--color-stone-900) 24%,
-    var(--fruit-color) 100%);
-    opacity: .15;
-  }
+}
+
+.fruit-avatar {
+  @apply shrink-0 border relative overflow-hidden h-10 w-10 rounded-full flex items-center justify-center border-stone-200 dark:border-stone-700;
+  filter: drop-shadow(-1px -1px 4px var(--fruit-color));
 }
 
 .table-td-default {

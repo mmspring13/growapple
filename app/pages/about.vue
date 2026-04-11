@@ -22,7 +22,7 @@ useSeoMeta({
   <div class="prose prose-stone dark:prose-invert max-w-none space-y-8 mt-6">
     <div class="bg-white dark:bg-stone-900 p-8 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-sm">
       <div class="flex items-center gap-4 mb-4">
-        <div class="w-12 h-12 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-600 dark:text-orange-400">
+        <div class="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 dark:text-red-400">
           <Leaf class="w-6 h-6" />
         </div>
         <h2 class="text-2xl font-serif font-medium text-stone-900 dark:text-stone-100 m-0">

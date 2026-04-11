@@ -270,7 +270,7 @@ function formatRipeningPeriod(period?: string) {
 }
 
 .badge-slug {
-  @apply inline-block px-3 py-1 mb-2 rounded-full text-xs font-mono bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300 uppercase tracking-wider;
+  @apply inline-block px-3 py-1 mb-2 rounded-full text-xs font-mono bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 uppercase tracking-wider;
 }
 
 .stat-label {
@@ -299,7 +299,7 @@ function formatRipeningPeriod(period?: string) {
 }
 
 .node-text {
-  @apply text-stone-700 dark:text-stone-300 font-medium underline decoration-stone-300 dark:decoration-stone-700 underline-offset-4 group-hover:text-orange-700 dark:group-hover:text-orange-400 group-hover:decoration-orange-300;
+  @apply text-stone-700 dark:text-stone-300 font-medium underline decoration-stone-300 dark:decoration-stone-700 underline-offset-4 group-hover:text-red-700 dark:group-hover:text-red-400 group-hover:decoration-red-300;
 }
 
 .node-avatar {
@@ -307,7 +307,7 @@ function formatRipeningPeriod(period?: string) {
 }
 
 .node-dot {
-  @apply w-2 h-2 rounded-full bg-stone-300 dark:bg-stone-600 group-hover:bg-orange-500;
+  @apply w-2 h-2 rounded-full bg-stone-300 dark:bg-stone-600 group-hover:bg-red-500;
 }
 
 .hero-image-container {
@@ -319,7 +319,7 @@ function formatRipeningPeriod(period?: string) {
 }
 
 .art-apple {
-  @apply w-48 h-48 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 shadow-2xl;
+  @apply w-48 h-48 rounded-full bg-gradient-to-br from-red-400 to-red-600 shadow-2xl;
 }
 
 .fade-enter-active, .fade-leave-active {
@@ -334,6 +334,6 @@ function formatRipeningPeriod(period?: string) {
 }
 
 .btn-toggle {
-  @apply mt-2 flex items-center gap-2 text-orange-600 dark:text-orange-400 hover:text-orange-700 font-medium transition-colors;
+  @apply mt-2 flex items-center gap-2 text-red-600 dark:text-red-400 hover:text-red-700 font-medium transition-colors;
 }
 </style>
